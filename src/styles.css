@@ -545,22 +545,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .mobile-brand {
     display: block;
     position: fixed; top: 0; left: 0; right: 0;
-    height: 48px; line-height: 48px;
-    padding: 0 18px;
+    height: 72px; line-height: 72px;
+    padding: 0 16px;
     background: var(--bg-deep);
     border-bottom: 1px solid var(--border);
-    font-size: 1rem; font-weight: 800; letter-spacing: -0.3px;
+    font-size: 1.5rem; font-weight: 800; letter-spacing: -0.3px;
     color: var(--text-1);
     z-index: 100;
   }
   .mobile-brand span {
-    color: var(--text-5); font-weight: 500; font-size: 0.6rem;
+    color: var(--text-5); font-weight: 500; font-size: 0.7rem;
     letter-spacing: 1.5px; text-transform: uppercase;
-    margin-left: 8px; vertical-align: middle;
+    margin-left: 10px; vertical-align: middle;
   }
 
   /* ── Main content ──────────────────────────────────────── */
-  .main { margin-left: 0; padding: 72px 16px 80px; }
+  .main { margin-left: 0; padding: 90px 16px 80px; }
 
   /* ── Page headers ──────────────────────────────────────── */
   .page-header { padding-top: 16px; }
@@ -638,7 +638,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 @media (max-width: 420px) {
   .stats-row  { grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .bests-grid { grid-template-columns: 1fr; }
-  .main { padding: 72px 12px 80px; }
+  .main { padding: 90px 12px 80px; }
   .set-inputs { gap: 6px; }
   .meas-form-card { padding: 14px; }
   .meas-input-grid { grid-template-columns: 1fr; }
