@@ -14,7 +14,9 @@ export default function LastSessionCard({ session }) {
         <span className="ls-date">{formatDate(session.date)}</span>
         <span className="ls-count">{exercises.length} exercises</span>
       </div>
-      {exercises.length > 0 ? (
+      {session.type === 'offday' ? (
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-4)' }}>🛌 Rest & recovery day</div>
+      ) : exercises.length > 0 ? (
         <div className="ls-grid">
           {exercises.slice(0, 6).map(([exName, ex]) => {
             const sets = ex.sets.filter(s => s?.weight !== '' && s?.weight != null);
@@ -30,7 +32,7 @@ export default function LastSessionCard({ session }) {
           {exercises.length > 6 && <div className="ls-more">+{exercises.length - 6} more</div>}
         </div>
       ) : (
-        <div style={{ fontSize: '0.78rem', color: '#2a2a2a' }}>No exercise data recorded</div>
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-6)' }}>No exercise data recorded</div>
       )}
     </div>
   );

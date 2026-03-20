@@ -66,6 +66,29 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
     return history.some(s => s.data[ex]?.sets?.some(set => set.weight !== '' || set.reps !== ''));
   }
 
+  /* ── Off Day ── */
+  if (step === 'offday') return (
+    <>
+      <div className="add-header">
+        <button className="back-btn" style={{ margin: 0 }} onClick={() => setStep('select')}>←</button>
+        <div className="add-title">Log Off Day</div>
+        <input type="date" className="date-picker" value={workoutDate} onChange={e => setWorkoutDate(e.target.value)} />
+      </div>
+      <div className="offday-card">
+        <div className="offday-icon">🛌</div>
+        <div className="offday-title">Rest & Recovery</div>
+        <div className="offday-sub">Your streak will be protected. Rest days are part of the plan.</div>
+      </div>
+      <div className="btn-row">
+        <button className="btn-primary" onClick={() => onSave({
+          id: Date.now(), date: new Date(workoutDate + 'T12:00:00').toISOString(),
+          type: 'offday', programName: 'Off Day', tagClass: 'offday', data: {}
+        })}>Save Off Day</button>
+        <button className="btn-ghost" onClick={onCancel}>Cancel</button>
+      </div>
+    </>
+  );
+
   /* ── Select program ── */
   if (step === 'select') return (
     <>
@@ -75,6 +98,10 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
       </div>
       <p style={{ color: '#444', fontSize: '0.875rem', marginBottom: 20 }}>Choose a program</p>
       <div className="program-grid">
+        <button className="program-card-offday" onClick={() => setStep('offday')}>
+          <span className="offday-card-label">Off Day</span>
+          <span className="offday-card-sub">Log a rest day</span>
+        </button>
         {programs.map(prog => (
           <div key={prog.id} className="program-card" onClick={() => startProgram(prog)}>
             <div className="prog-actions">
