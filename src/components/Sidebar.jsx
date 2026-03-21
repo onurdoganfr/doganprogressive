@@ -9,7 +9,7 @@ function getDisplayName(user) {
   return user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
 }
 
-export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, user, onSignOut }) {
+export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, user, onProfile, onSignOut }) {
   const [menuOpen,    setMenuOpen]    = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -76,7 +76,7 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, us
 
           {user && (
             <div className="sidebar-user-wrap">
-              <button className="sidebar-user-btn" onClick={() => setUserMenuOpen(o => !o)}>
+              <button className="sidebar-user-btn" onClick={() => { onProfile?.(); setUserMenuOpen(false); }}>
                 <div className="sidebar-avatar">{initials}</div>
                 <div className="sidebar-user-info">
                   <div className="sidebar-user-name">{displayName}</div>
@@ -86,16 +86,6 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, us
                   <polyline points="6 9 12 15 18 9"/>
                 </svg>
               </button>
-              {userMenuOpen && (
-                <button className="sidebar-signout-btn" onClick={onSignOut}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                    <polyline points="16 17 21 12 16 7"/>
-                    <line x1="21" y1="12" x2="9" y2="12"/>
-                  </svg>
-                  Sign Out
-                </button>
-              )}
             </div>
           )}
         </div>
@@ -127,13 +117,13 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, us
 
             {/* User card in menu */}
             {user && (
-              <div className="mobile-menu-user">
+              <div className="mobile-menu-user" onClick={() => { onProfile?.(); setMenuOpen(false); }} style={{ cursor: 'pointer' }}>
                 <div className="sidebar-avatar">{initials}</div>
                 <div className="sidebar-user-info">
                   <div className="sidebar-user-name">{displayName}</div>
                   <div className="sidebar-user-email">{user.email}</div>
                 </div>
-                <button className="mobile-menu-signout" onClick={onSignOut} title="Sign Out">
+                <button className="mobile-menu-signout" onClick={e => { e.stopPropagation(); onSignOut(); }} title="Sign Out">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>

@@ -980,3 +980,250 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   accent-color: var(--green);
   cursor: pointer;
 }
+
+/* ══════════════════════════════════════════════════════════
+   PROFILE PAGE
+══════════════════════════════════════════════════════════ */
+.profile-page { max-width: 540px; }
+
+.profile-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 24px 0 32px;
+  gap: 6px;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #000;
+  font-size: 1.5rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.profile-avatar-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.profile-avatar-email {
+  font-size: 0.8rem;
+  color: var(--text-5);
+}
+
+.profile-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.profile-section.danger-zone {
+  border-color: var(--red);
+  background: var(--red-bg);
+}
+
+.profile-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-5);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.profile-form {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-input {
+  flex: 1;
+  padding: 10px 13px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-3);
+  border-radius: 9px;
+  color: var(--text-1);
+  font-size: 0.88rem;
+  transition: border-color 0.18s;
+}
+
+.profile-input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.profile-save-btn {
+  padding: 10px 18px;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.18s;
+}
+
+.profile-save-btn:hover { opacity: 0.85; }
+
+.profile-msg {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.profile-msg.ok  { background: var(--green-bg); color: var(--green); }
+.profile-msg.err { background: var(--red-bg);   color: var(--red); }
+
+/* ── Sessions card ───────────────────────────────────────── */
+.session-card {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.session-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-label { font-size: 0.8rem; color: var(--text-4); }
+
+.session-val {
+  font-size: 0.78rem;
+  color: var(--text-2);
+  text-align: right;
+}
+
+.session-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+/* ── Danger zone buttons ─────────────────────────────────── */
+.profile-danger-btn {
+  padding: 10px 18px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.18s;
+}
+
+.profile-danger-btn:hover:not(:disabled) { opacity: 0.85; }
+.profile-danger-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.profile-danger-btn.outline {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+  margin-bottom: 12px;
+}
+
+.delete-confirm-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.delete-confirm-text {
+  font-size: 0.82rem;
+  color: var(--text-3);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-cancel-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-3);
+  border-radius: 9px;
+  color: var(--text-2);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── Auth extras ─────────────────────────────────────────── */
+.auth-login-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.auth-forgot-link {
+  background: none;
+  border: none;
+  color: var(--green);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.auth-mode-header {
+  margin-bottom: 20px;
+}
+
+.auth-back-link {
+  background: none;
+  border: none;
+  color: var(--text-4);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.auth-mode-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 4px;
+}
+
+.auth-mode-sub {
+  font-size: 0.82rem;
+  color: var(--text-4);
+}

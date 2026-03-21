@@ -10,6 +10,7 @@ import DayDetail from './components/DayDetail.jsx';
 import AddWorkout from './components/AddWorkout.jsx';
 import Measurements from './components/Measurements.jsx';
 import Settings from './components/Settings.jsx';
+import Profile from './components/Profile.jsx';
 
 // ── DB ↔ App converters ──────────────────────────────────────────────────────
 
@@ -71,8 +72,9 @@ export default function App() {
   function toggleTheme() { setTheme(t => t === 'dark' ? 'light' : 'dark'); }
 
   // Auth
-  const [user,      setUser]      = useState(null);
-  const [authReady, setAuthReady] = useState(false);
+  const [user,       setUser]       = useState(null);
+  const [authReady,  setAuthReady]  = useState(false);
+  const [resetMode,  setResetMode]  = useState(false);
 
   // Data
   const [dataLoading,  setDataLoading]  = useState(false);
@@ -99,7 +101,12 @@ export default function App() {
       setAuthReady(true);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setResetMode(true);
+        setUser(null);
+        return;
+      }
       setUser(session?.user ?? null);
     });
 
@@ -204,6 +211,7 @@ export default function App() {
     );
   }
 
+  if (resetMode) return <Auth resetMode />;
   if (!user) return <Auth />;
 
   return (
@@ -215,6 +223,7 @@ export default function App() {
         theme={theme}
         onToggleTheme={toggleTheme}
         user={user}
+        onProfile={() => { setShowAdd(false); setView('profile'); }}
         onSignOut={() => {
           localStorage.removeItem('gymNoRemember');
           sessionStorage.removeItem('gymActive');
@@ -248,6 +257,17 @@ export default function App() {
             measurements={measurements}
             onImport={handleImport}
             onSignOut={() => supabase.auth.signOut()}
+          />
+        ) : view === 'profile' ? (
+          <Profile
+            user={user}
+            onBack={() => setView('dashboard')}
+            onSignOut={() => {
+              localStorage.removeItem('gymNoRemember');
+              sessionStorage.removeItem('gymActive');
+              supabase.auth.signOut();
+            }}
+            onUserUpdate={() => supabase.auth.refreshSession()}
           />
         ) : null}
       </main>
