@@ -1,7 +1,20 @@
 import { useState } from 'react';
 
-export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+function getInitials(user) {
+  const name = user?.user_metadata?.full_name || user?.email || '';
+  return name.split(/[\s@]+/).slice(0, 2).map(w => w[0]?.toUpperCase()).join('');
+}
+
+function getDisplayName(user) {
+  return user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+}
+
+export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, user, onSignOut }) {
+  const [menuOpen,    setMenuOpen]    = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const initials    = getInitials(user);
+  const displayName = getDisplayName(user);
 
   function navigate(target) {
     setView(target);
@@ -12,6 +25,7 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme }) 
     <>
       <aside className="sidebar">
         <div className="sidebar-logo">DOGAN<span>Progressive Overload</span></div>
+
         <div className="nav-links desktop-nav">
           <button className="add-workout-btn" onClick={onAdd}>
             <span>+</span>
@@ -31,9 +45,7 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme }) 
           <button className={`nav-link${view === 'measurements' ? ' active' : ''}`} onClick={() => setView('measurements')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-              <line x1="9" y1="8" x2="15" y2="8"/>
-              <line x1="9" y1="12" x2="15" y2="12"/>
-              <line x1="9" y1="16" x2="13" y2="16"/>
+              <line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
             </svg>Measurements
           </button>
           <button className={`nav-link${view === 'settings' ? ' active' : ''}`} onClick={() => setView('settings')}>
@@ -43,27 +55,50 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme }) 
             </svg>Settings
           </button>
         </div>
-        <button className="theme-toggle-btn" onClick={onToggleTheme}>
-          {theme === 'dark' ? (
-            <>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+
+        {/* ── Desktop bottom: user card + theme ─────────────────── */}
+        <div className="sidebar-bottom">
+          <button className="theme-toggle-btn" onClick={onToggleTheme}>
+            {theme === 'dark' ? (
+              <><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="12" cy="12" r="5"/>
                 <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
                 <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
                 <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
                 <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-              </svg>
-              Light mode
-            </>
-          ) : (
-            <>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              </svg>Light mode</>
+            ) : (
+              <><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-              </svg>
-              Dark mode
-            </>
+              </svg>Dark mode</>
+            )}
+          </button>
+
+          {user && (
+            <div className="sidebar-user-wrap">
+              <button className="sidebar-user-btn" onClick={() => setUserMenuOpen(o => !o)}>
+                <div className="sidebar-avatar">{initials}</div>
+                <div className="sidebar-user-info">
+                  <div className="sidebar-user-name">{displayName}</div>
+                  <div className="sidebar-user-email">{user.email}</div>
+                </div>
+                <svg className={`sidebar-chevron${userMenuOpen ? ' open' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              {userMenuOpen && (
+                <button className="sidebar-signout-btn" onClick={onSignOut}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Sign Out
+                </button>
+              )}
+            </div>
           )}
-        </button>
+        </div>
       </aside>
 
       {/* ── Mobile bottom bar ─────────────────────────────────── */}
@@ -89,6 +124,25 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme }) 
         <div className="mobile-menu-overlay" onClick={() => setMenuOpen(false)}>
           <div className="mobile-menu-panel" onClick={e => e.stopPropagation()}>
             <div className="mobile-menu-handle" />
+
+            {/* User card in menu */}
+            {user && (
+              <div className="mobile-menu-user">
+                <div className="sidebar-avatar">{initials}</div>
+                <div className="sidebar-user-info">
+                  <div className="sidebar-user-name">{displayName}</div>
+                  <div className="sidebar-user-email">{user.email}</div>
+                </div>
+                <button className="mobile-menu-signout" onClick={onSignOut} title="Sign Out">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+
             <button className={`mobile-menu-item${view === 'dashboard' ? ' active' : ''}`} onClick={() => navigate('dashboard')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
@@ -107,9 +161,7 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme }) 
             <button className={`mobile-menu-item${view === 'measurements' ? ' active' : ''}`} onClick={() => navigate('measurements')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-                <line x1="9" y1="8" x2="15" y2="8"/>
-                <line x1="9" y1="12" x2="15" y2="12"/>
-                <line x1="9" y1="16" x2="13" y2="16"/>
+                <line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
               </svg>
               Measurements
               {view === 'measurements' && <span className="mobile-menu-dot" />}

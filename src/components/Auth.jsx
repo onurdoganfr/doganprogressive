@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase.js';
 
 export default function Auth() {
-  const [mode, setMode]         = useState('login');
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName]         = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
-  const [done, setDone]         = useState(false);
+  const [mode, setMode]           = useState('login');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [name, setName]           = useState('');
+  const [rememberMe, setRemember] = useState(true);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState('');
+  const [done, setDone]           = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,9 +26,19 @@ export default function Auth() {
       else setDone(true);
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setError(error.message === 'Invalid login credentials'
-        ? 'Wrong email or password.'
-        : error.message);
+      if (error) {
+        setError(error.message === 'Invalid login credentials'
+          ? 'Wrong email or password.'
+          : error.message);
+      } else {
+        // Remember Me logic
+        if (rememberMe) {
+          localStorage.removeItem('gymNoRemember');
+        } else {
+          localStorage.setItem('gymNoRemember', '1');
+        }
+        sessionStorage.setItem('gymActive', '1');
+      }
     }
     setLoading(false);
   }
@@ -98,6 +109,17 @@ export default function Auth() {
                 minLength={6}
               />
             </div>
+
+            {mode === 'login' && (
+              <label className="auth-remember">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={e => setRemember(e.target.checked)}
+                />
+                <span>Remember me</span>
+              </label>
+            )}
 
             {error && <div className="auth-error">{error}</div>}
 

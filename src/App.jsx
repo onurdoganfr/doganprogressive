@@ -88,8 +88,14 @@ export default function App() {
 
   // ── Auth listener ──────────────────────────────────────────────────────────
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      // Remember Me: if user opted out and this is a new browser session, sign out
+      if (session && localStorage.getItem('gymNoRemember') && !sessionStorage.getItem('gymActive')) {
+        await supabase.auth.signOut();
+        setUser(null);
+      } else {
+        setUser(session?.user ?? null);
+      }
       setAuthReady(true);
     });
 
@@ -208,6 +214,12 @@ export default function App() {
         onAdd={() => { setPrevView(view); setShowAdd(true); }}
         theme={theme}
         onToggleTheme={toggleTheme}
+        user={user}
+        onSignOut={() => {
+          localStorage.removeItem('gymNoRemember');
+          sessionStorage.removeItem('gymActive');
+          supabase.auth.signOut();
+        }}
       />
       <div className="mobile-brand">DOGAN<span>Progressive Overload</span></div>
       <main className="main">
