@@ -1,18 +1,96 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ExercisePicker from './ExercisePicker.jsx';
 import Stepper from './Stepper.jsx';
 import RestTimer from './RestTimer.jsx';
 import { isTreadmill, isJumpRope, makeEmptyData, getPrevForExercise, checkPR } from '../utils/workout.js';
+
+function sortByOrder(programs, order) {
+  if (!order.length) return programs;
+  return [...programs].sort((a, b) => {
+    const ai = order.indexOf(String(a.id));
+    const bi = order.indexOf(String(b.id));
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+}
 
 export default function AddWorkout({ history, programs, onSave, onSaveProgram, onDeleteProgram, onUpdateProgram, onCancel }) {
   const [step,        setStep]        = useState('select');
   const [program,     setProgram]     = useState(null);
   const [editProg,    setEditProg]    = useState(null);
   const [data,        setData]        = useState({});
-  const [workoutDate, setWorkoutDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [workoutDate, setWorkoutDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  });
   const [showTimer,   setShowTimer]   = useState(false);
   const [timerKey,    setTimerKey]    = useState(0);
 
+  // Drag-to-reorder state
+  const [programOrder, setProgramOrder] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('gymProgramOrder') || '[]'); } catch { return []; }
+  });
+  const [dragIdx,  setDragIdx]  = useState(null);
+  const [overIdx,  setOverIdx]  = useState(null);
+  const dragRef    = useRef({ active: false, fromIdx: null });
+  const overIdxRef = useRef(null);
+  const displayRef = useRef([]);
+
+  const displayedPrograms = sortByOrder(programs, programOrder);
+  displayRef.current = displayedPrograms;
+
+  // ── Drag handlers ───────────────────────────────────────────
+  function handleDragHandleDown(e, idx) {
+    e.preventDefault();
+    e.stopPropagation();
+    dragRef.current = { active: true, fromIdx: idx };
+    overIdxRef.current = idx;
+    setDragIdx(idx);
+
+    function onMove(ev) {
+      if (!dragRef.current.active) return;
+      if (ev.cancelable) ev.preventDefault();
+      const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      document.querySelectorAll('[data-prog-idx]').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        if (clientY >= rect.top && clientY <= rect.bottom) {
+          const i = parseInt(card.getAttribute('data-prog-idx'));
+          setOverIdx(i);
+          overIdxRef.current = i;
+        }
+      });
+    }
+
+    function onEnd() {
+      const from = dragRef.current.fromIdx;
+      const to   = overIdxRef.current;
+      if (from !== null && to !== null && from !== to) {
+        const arr = [...displayRef.current];
+        const [item] = arr.splice(from, 1);
+        arr.splice(to, 0, item);
+        const newOrder = arr.map(p => String(p.id));
+        localStorage.setItem('gymProgramOrder', JSON.stringify(newOrder));
+        setProgramOrder(newOrder);
+      }
+      dragRef.current = { active: false, fromIdx: null };
+      overIdxRef.current = null;
+      setDragIdx(null);
+      setOverIdx(null);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mouseup',   onEnd);
+      document.removeEventListener('touchend',  onEnd);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup',   onEnd);
+    document.addEventListener('touchend',  onEnd);
+  }
+
+  // ── Workout helpers ─────────────────────────────────────────
   function startProgram(prog) {
     setProgram(prog);
     setData(makeEmptyData(prog.exercises));
@@ -44,9 +122,6 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
       ...d,
       [ex]: { ...d[ex], sets: [...d[ex].sets, { weight: '', reps: '' }] }
     }));
-    // Auto-start rest timer when a set is completed
-    setShowTimer(true);
-    setTimerKey(k => k + 1);
   }
 
   function fillAll() {
@@ -92,7 +167,9 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
       <div className="add-header">
         <button className="back-btn" style={{ margin: 0 }} onClick={() => setStep('select')}>←</button>
         <div className="add-title">Log Off Day</div>
-        <input type="date" className="date-picker" value={workoutDate} onChange={e => setWorkoutDate(e.target.value)} />
+        <div className="add-header-actions">
+          <input type="date" className="date-picker" value={workoutDate} onChange={e => setWorkoutDate(e.target.value)} />
+        </div>
       </div>
       <div className="offday-card">
         <div className="offday-icon">🛌</div>
@@ -116,15 +193,27 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
         <button className="back-btn" style={{ margin: 0 }} onClick={onCancel}>←</button>
         <div className="add-title">Add Workout</div>
       </div>
-      <p style={{ color: 'var(--text-3)', fontSize: '0.875rem', marginBottom: 20 }}>Choose a program</p>
+      <p style={{ color: 'var(--text-3)', fontSize: '0.875rem', marginBottom: 20 }}>Choose a program — hold <span style={{ color: 'var(--text-4)' }}>⠿</span> to reorder</p>
       <div className="program-grid">
         <button className="program-card-offday" onClick={() => setStep('offday')}>
           <span className="offday-card-label">Off Day</span>
           <span className="offday-card-sub">Log a rest day</span>
         </button>
-        {programs.map(prog => (
-          <div key={prog.id} className="program-card" onClick={() => startProgram(prog)}>
+        {displayedPrograms.map((prog, i) => (
+          <div
+            key={prog.id}
+            className={`program-card${dragIdx === i ? ' prog-dragging' : ''}${overIdx === i && dragIdx !== i ? ' prog-drag-over' : ''}`}
+            data-prog-idx={i}
+            onClick={() => dragRef.current.active ? null : startProgram(prog)}
+          >
             <div className="prog-actions">
+              <button
+                className="prog-drag-handle"
+                title="Hold to reorder"
+                onMouseDown={e => handleDragHandleDown(e, i)}
+                onTouchStart={e => handleDragHandleDown(e, i)}
+                onClick={e => e.stopPropagation()}
+              >⠿</button>
               <button className="prog-edit" title="Edit program"
                 onClick={e => { e.stopPropagation(); setEditProg(prog); setStep('edit'); }}>✎</button>
               <button className="prog-delete" title="Delete program"
@@ -159,25 +248,25 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
     <>
       <div className="add-header">
         <button className="back-btn" style={{ margin: 0 }} onClick={() => setStep('select')}>←</button>
-        <div className="add-title">Add Workout</div>
-        <span className={`day-tag ${program.tagClass}`}>{program.name}</span>
-        <input type="date" className="date-picker" value={workoutDate} onChange={e => setWorkoutDate(e.target.value)} />
-        {hasAnyPrevData && (
-          <button className="fill-all-btn" onClick={fillAll} title="Fill all exercises from last session">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14">
-              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-              <path d="M5 21h14"/>
+        <div className="add-title">{program.name}</div>
+        <div className="add-header-actions">
+          {hasAnyPrevData && (
+            <button className="fill-all-btn" onClick={fillAll} title="Fill all exercises from last session">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14">
+                <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                <path d="M5 21h14"/>
+              </svg>
+              <span className="fill-all-label">Fill Last Session</span>
+            </button>
+          )}
+          <input type="date" className="date-picker" value={workoutDate} onChange={e => setWorkoutDate(e.target.value)} />
+          <button className={`timer-toggle-btn${showTimer ? ' active' : ''}`} onClick={() => setShowTimer(t => !t)} title="Rest Timer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16">
+              <circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 15 15"/>
+              <path d="M5 3l2 2M19 3l-2 2"/>
             </svg>
-            Fill Last Session
           </button>
-        )}
-        <button className={`timer-toggle-btn${showTimer ? ' active' : ''}`} onClick={() => setShowTimer(t => !t)} title="Rest Timer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16">
-            <circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 15 15"/>
-            <path d="M5 3l2 2M19 3l-2 2"/>
-          </svg>
-          Rest Timer
-        </button>
+        </div>
       </div>
 
       <div className="ex-grid">

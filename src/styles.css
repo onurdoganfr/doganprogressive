@@ -267,11 +267,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .program-card:hover { border-color: var(--border-5); background: var(--surface-2); }
 .program-name { font-size: 0.95rem; font-weight: 600; color: var(--text-1); margin-bottom: 5px; margin-right: 20px; }
 .program-sub { font-size: 0.7rem; color: var(--text-5); line-height: 1.5; }
-.prog-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; }
+.prog-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; align-items: center; }
+.prog-drag-handle { background: none; border: none; color: var(--text-5); cursor: grab; padding: 3px 4px; border-radius: 4px; font-size: 1rem; line-height: 1; transition: color 0.1s; touch-action: none; }
+.prog-drag-handle:hover { color: var(--text-2); }
+.prog-drag-handle:active { cursor: grabbing; }
 .prog-edit { background: none; border: none; color: var(--text-6); cursor: pointer; padding: 3px 5px; border-radius: 4px; font-size: 0.85rem; line-height: 1; transition: all 0.1s; }
 .prog-edit:hover { background: var(--blue-bg); color: var(--blue); }
 .prog-delete { background: none; border: none; color: var(--text-7); cursor: pointer; padding: 3px 5px; border-radius: 4px; font-size: 1rem; line-height: 1; transition: all 0.1s; }
 .prog-delete:hover { background: var(--red-bg); color: var(--red); }
+.program-card.prog-dragging { opacity: 0.35; transform: scale(0.97); }
+.program-card.prog-drag-over { border-color: var(--green); box-shadow: 0 0 0 1px var(--green-border); }
 .program-card-new { padding: 18px 16px; background: transparent; border: 1px dashed var(--border-4); border-radius: 12px; cursor: pointer; color: var(--text-6); font-size: 0.875rem; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 120px; flex: 0 0 auto; }
 .program-card-new:hover { border-color: var(--border-6); color: var(--text-3); }
 .program-card-offday { position: relative; padding: 18px 16px 16px; background: var(--surface); border: 1px solid var(--border-2); border-radius: 12px; cursor: pointer; transition: all 0.15s; min-width: 140px; max-width: 210px; flex: 1; text-align: left; display: flex; flex-direction: column; gap: 5px; }
@@ -311,8 +316,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .set-timer-btn { background: none; border: none; color: var(--text-6); cursor: pointer; padding: 4px 5px; border-radius: 5px; display: flex; align-items: center; transition: all 0.15s; }
 .set-timer-btn:hover { background: var(--green-bg); color: var(--tag-pull); }
 
+/* ── Add header actions group ────────────────────────────── */
+.add-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* ── Timer toggle in header ──────────────────────────────── */
-.timer-toggle-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--surface); border: 1px solid var(--border-3); border-radius: 8px; color: var(--text-4); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; margin-left: auto; }
+.timer-toggle-btn { display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: var(--surface); border: 1px solid var(--border-3); border-radius: 8px; color: var(--text-4); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
 .timer-toggle-btn:hover { border-color: var(--border-5); color: var(--text-2); }
 .timer-toggle-btn.active { background: var(--green-bg); border-color: var(--green-border-2); color: var(--green); }
 
@@ -590,10 +604,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   /* ── Add workout header ────────────────────────────────── */
   .add-header { gap: 8px; }
   .add-title  { font-size: 1.3rem; }
-  .timer-toggle-btn { padding: 7px 10px; font-size: 0; gap: 0; } /* icon only */
+  .add-header-actions { gap: 6px; }
+  .timer-toggle-btn { padding: 7px 10px; }
   .timer-toggle-btn svg { width: 18px; height: 18px; }
-  .fill-all-btn { padding: 5px 8px; font-size: 0; gap: 0; } /* icon only on mobile */
-  .fill-all-btn svg { width: 16px; height: 16px; }
+  .fill-all-label { display: none; } /* hide text, show icon only */
+  .fill-all-btn { padding: 5px 8px; gap: 0; }
 
   /* ── Stepper: bigger touch targets ───────────────────────*/
   .step-btn { width: 30px; height: 34px; font-size: 1.1rem; }
@@ -1139,14 +1154,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 /* ══════════════════════════════════════════════════════════
    PROFILE PAGE
 ══════════════════════════════════════════════════════════ */
-.profile-page { max-width: 540px; margin: 0 auto; }
+.profile-page { max-width: 640px; }
 
-.profile-avatar-wrap {
+/* Horizontal user identity card — matches settings-card style */
+.profile-user-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px 0 24px;
+}
+
+.profile-user-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 24px 0 32px;
-  gap: 6px;
+  gap: 3px;
 }
 
 .profile-avatar {

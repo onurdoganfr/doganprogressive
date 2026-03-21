@@ -68,15 +68,16 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
   return (
     <div className="profile-page">
       {/* Header */}
-      <button className="back-btn" onClick={onBack}>← Back</button>
       <div className="page-title">Profile</div>
       <div className="page-sub">Manage your account</div>
 
-      {/* Avatar */}
-      <div className="profile-avatar-wrap">
+      {/* User card — horizontal like settings-card */}
+      <div className="profile-user-card">
         <div className="profile-avatar">{initials}</div>
-        <div className="profile-avatar-name">{user?.user_metadata?.full_name || user?.email}</div>
-        <div className="profile-avatar-email">{user?.email}</div>
+        <div className="profile-user-info">
+          <div className="profile-avatar-name">{user?.user_metadata?.full_name || user?.email}</div>
+          <div className="profile-avatar-email">{user?.email}</div>
+        </div>
       </div>
 
       {/* ── Name ──────────────────────────────────────────────── */}
