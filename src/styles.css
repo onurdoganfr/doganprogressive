@@ -984,7 +984,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 /* ══════════════════════════════════════════════════════════
    PROFILE PAGE
 ══════════════════════════════════════════════════════════ */
-.profile-page { max-width: 540px; }
+.profile-page { max-width: 540px; margin: 0 auto; }
 
 .profile-avatar-wrap {
   display: flex;
