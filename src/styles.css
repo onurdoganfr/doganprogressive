@@ -643,3 +643,194 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .meas-form-card { padding: 14px; }
   .meas-input-grid { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   AUTH SCREEN
+══════════════════════════════════════════════════════════ */
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--bg-deep);
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.auth-logo {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--text-1);
+}
+
+.auth-logo-sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  color: var(--text-5);
+  margin-top: 2px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 28px 32px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-4);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.auth-tab.active {
+  background: var(--green);
+  color: #000;
+}
+
+.auth-field {
+  margin-bottom: 16px;
+}
+
+.auth-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-4);
+  margin-bottom: 6px;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-3);
+  border-radius: 9px;
+  color: var(--text-1);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: border-color 0.18s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.auth-error {
+  background: var(--red-bg);
+  color: var(--red);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 0.8rem;
+  margin-bottom: 14px;
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 13px;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.18s;
+}
+
+.auth-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+.auth-submit:not(:disabled):hover { opacity: 0.88; }
+
+.auth-done {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.auth-done-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--green-bg);
+  border: 1.5px solid var(--green-border);
+  color: var(--green);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.auth-done-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 6px;
+}
+
+.auth-done-sub {
+  font-size: 0.82rem;
+  color: var(--text-4);
+  margin-bottom: 20px;
+}
+
+/* ── App loading splash ──────────────────────────────────── */
+.app-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-deep);
+  gap: 6px;
+}
+
+.app-loading-logo {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--text-1);
+}
+
+.app-loading-sub {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  color: var(--text-5);
+}
+
+/* ── Sign out button ─────────────────────────────────────── */
+.settings-signout-btn {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+
+.settings-signout-btn:hover {
+  background: var(--red-bg);
+}
