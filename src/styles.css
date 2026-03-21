@@ -1028,8 +1028,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 }
 
 .profile-section.danger-zone {
-  border-color: var(--red);
-  background: var(--red-bg);
+  border-color: var(--border);
+  background: var(--surface);
 }
 
 .profile-section-title {
@@ -1130,7 +1130,51 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   padding: 2px 10px;
 }
 
-/* ── Danger zone buttons ─────────────────────────────────── */
+/* ── Session buttons ─────────────────────────────────────── */
+.session-btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-session-btn {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-3);
+  border-radius: 9px;
+  color: var(--text-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.profile-session-btn:hover { background: var(--surface-3); }
+
+.profile-session-btn.outline {
+  border-color: var(--red);
+  color: var(--red);
+  background: transparent;
+}
+
+.profile-session-btn.outline:hover { background: var(--red-bg); }
+
+/* ── Delete link (subtle) ────────────────────────────────── */
+.profile-delete-link {
+  background: none;
+  border: none;
+  color: var(--text-5);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.18s;
+}
+
+.profile-delete-link:hover { color: var(--red); }
+
+/* ── Delete confirm ──────────────────────────────────────── */
 .profile-danger-btn {
   padding: 10px 18px;
   background: var(--red);
@@ -1146,13 +1190,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 .profile-danger-btn:hover:not(:disabled) { opacity: 0.85; }
 .profile-danger-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-.profile-danger-btn.outline {
-  background: transparent;
-  color: var(--red);
-  border: 1px solid var(--red);
-  margin-bottom: 12px;
-}
 
 .delete-confirm-box {
   display: flex;

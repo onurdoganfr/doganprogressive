@@ -167,17 +167,22 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
             <div className="session-val">{session ? formatDate(new Date(session.expires_at * 1000).toISOString()) : '—'}</div>
           </div>
         </div>
-        <button className="profile-danger-btn outline" onClick={signOutAll}>
-          Sign out from all devices
-        </button>
+        <div className="session-btn-row">
+          <button className="profile-session-btn" onClick={onSignOut}>
+            Sign out this device
+          </button>
+          <button className="profile-session-btn outline" onClick={signOutAll}>
+            Sign out all devices
+          </button>
+        </div>
       </div>
 
       {/* ── Delete Account ────────────────────────────────────── */}
-      <div className="profile-section danger-zone">
-        <div className="profile-section-title">Danger Zone</div>
+      <div className="profile-section">
+        <div className="profile-section-title">Account</div>
         {!showDelete ? (
-          <button className="profile-danger-btn" onClick={() => setShowDelete(true)}>
-            Delete My Account
+          <button className="profile-delete-link" onClick={() => setShowDelete(true)}>
+            Delete my account
           </button>
         ) : (
           <div className="delete-confirm-box">
