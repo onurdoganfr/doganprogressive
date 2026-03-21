@@ -44,16 +44,16 @@ export default function RestTimer({ onClose }) {
     <div className={`rest-timer-float${done ? ' rest-done' : ''}`}>
       <div className="rest-timer-ring">
         <svg width="72" height="72" viewBox="0 0 72 72">
-          <circle cx="36" cy="36" r="28" fill="none" stroke="#1e1e1e" strokeWidth="4" />
+          <circle cx="36" cy="36" r="28" fill="none" stroke="var(--border-3)" strokeWidth="4" />
           <circle cx="36" cy="36" r="28" fill="none"
-            stroke={done ? '#4caf50' : '#3d6b3d'}
+            stroke={done ? 'var(--green)' : 'var(--green-mid-2)'}
             strokeWidth="4"
             strokeDasharray={`${dash} ${circumference}`}
             strokeLinecap="round"
             transform="rotate(-90 36 36)"
             style={{ transition: 'stroke-dasharray 0.9s linear' }}
           />
-          <text x="36" y="41" textAnchor="middle" fill={done ? '#4caf50' : '#eee'}
+          <text x="36" y="41" textAnchor="middle" fill={done ? 'var(--green)' : 'var(--text-1)'}
             fontSize="13" fontWeight="700" fontFamily="inherit">
             {done ? 'GO!' : `${mins}:${String(secs).padStart(2, '0')}`}
           </text>

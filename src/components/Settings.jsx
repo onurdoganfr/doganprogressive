@@ -1,9 +1,60 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
+
+const KVKK_TEXT = `PRIVACY POLICY & DATA PROTECTION NOTICE
+
+Last updated: March 2026
+
+1. DATA CONTROLLER
+Your personal data processed within the DOGAN Progressive Overload application ("App") is handled by the application owner, Onur Doğan.
+
+2. PERSONAL DATA COLLECTED
+The following data is collected through the App:
+• Account information: Name, email address
+• Workout data: Exercise history, program details, set/rep/weight records
+• Body measurement data: Weight, body measurements
+
+3. PURPOSE OF DATA PROCESSING
+Collected data is used solely for the following purposes:
+• Providing the core functionality of the App
+• Managing your user account
+• Tracking workout history and progress
+Your data is never shared with third parties or used for advertising purposes.
+
+4. DATA STORAGE
+Your data is securely stored on Supabase (supabase.com) infrastructure. Supabase uses industry-standard encryption methods to protect your data.
+
+5. DATA RETENTION
+Your data is retained for as long as your account is active. When you delete your account, all your data is permanently and irreversibly deleted.
+
+6. YOUR RIGHTS
+You have the following rights regarding your personal data:
+• Right to access your data
+• Right to request correction of your data
+• Right to request deletion of your data (Profile → Delete Account)
+• Right to object to data processing
+
+7. CONTACT
+For any requests or questions regarding your personal data, you may use the account deletion feature on the Profile page or contact the application owner directly.
+
+8. LIMITATION OF LIABILITY
+The App is provided "as is". The application owner cannot be held liable for technical failures, data losses, or issues arising from third-party service providers (Supabase, Netlify).`;
+
 
 export default function Settings({ history, programs, measurements, onImport, onSignOut }) {
   const fileRef = useRef();
-  const [status, setStatus] = useState(null);
-  const [importing, setImporting] = useState(false);
+  const [status,      setStatus]    = useState(null);
+  const [importing,   setImporting] = useState(false);
+  const [showKvkk,    setShowKvkk] = useState(false);
+  const [calcWeight,  setCalcWeight] = useState('');
+  const [calcReps,    setCalcReps]   = useState('');
+
+  const result1RM = useMemo(() => {
+    const w = parseFloat(calcWeight);
+    const r = parseInt(calcReps);
+    if (!w || !r || r <= 0 || w <= 0) return null;
+    if (r === 1) return w;
+    return Math.round(w * (1 + r / 30) * 2) / 2;
+  }, [calcWeight, calcReps]);
 
   function handleExport() {
     const data = {
@@ -86,6 +137,49 @@ export default function Settings({ history, programs, measurements, onImport, on
           <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleFileChange} />
         </div>
 
+        {/* 1RM Calculator */}
+        <div className="settings-card settings-card-calc">
+          <div className="settings-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <rect x="4" y="2" width="16" height="20" rx="2"/>
+              <line x1="8" y1="6" x2="16" y2="6"/>
+              <line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/>
+              <line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/>
+              <line x1="8" y1="18" x2="10" y2="18"/><line x1="14" y1="18" x2="16" y2="18"/>
+            </svg>
+          </div>
+          <div className="settings-card-body">
+            <div className="settings-card-title">1RM Calculator</div>
+            <div className="settings-card-desc">Estimate your one-rep max using the Epley formula.</div>
+            <div className="calc-1rm-row">
+              <input
+                className="calc-1rm-input"
+                type="number"
+                min="0"
+                step="0.5"
+                placeholder="Weight (kg)"
+                value={calcWeight}
+                onChange={e => setCalcWeight(e.target.value)}
+              />
+              <input
+                className="calc-1rm-input"
+                type="number"
+                min="1"
+                max="30"
+                placeholder="Reps"
+                value={calcReps}
+                onChange={e => setCalcReps(e.target.value)}
+              />
+              {result1RM && (
+                <div className="calc-1rm-result">
+                  <span className="calc-1rm-label">Est. 1RM</span>
+                  <span className="calc-1rm-value">{result1RM} <small>kg</small></span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Sign Out */}
         <div className="settings-card settings-card-signout">
           <div className="settings-card-icon">
@@ -106,6 +200,29 @@ export default function Settings({ history, programs, measurements, onImport, on
       {status === 'exported' && <div className="settings-status ok">Backup downloaded successfully.</div>}
       {status === 'imported' && <div className="settings-status ok">Data restored — all records updated.</div>}
       {status === 'error'    && <div className="settings-status err">Invalid file. Please upload a valid backup.</div>}
+
+      {/* KVKK Button */}
+      <button className="kvkk-btn" onClick={() => setShowKvkk(true)}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Privacy Policy &amp; Data Protection Notice
+      </button>
+
+      {/* KVKK Modal */}
+      {showKvkk && (
+        <div className="kvkk-overlay" onClick={() => setShowKvkk(false)}>
+          <div className="kvkk-modal" onClick={e => e.stopPropagation()}>
+            <div className="kvkk-modal-header">
+              <div className="kvkk-modal-title">Privacy Policy</div>
+              <button className="chart-modal-close" onClick={() => setShowKvkk(false)}>✕</button>
+            </div>
+            <pre className="kvkk-text">{KVKK_TEXT}</pre>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

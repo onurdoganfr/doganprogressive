@@ -12,16 +12,14 @@ function formatDate(iso) {
 }
 
 export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
-  const [name,            setName]           = useState(user?.user_metadata?.full_name || '');
-  const [email,           setEmail]          = useState(user?.email || '');
-  const [newPw,           setNewPw]          = useState('');
-  const [confirmPw,       setConfirmPw]      = useState('');
-  const [deleteInput,     setDeleteInput]    = useState('');
-  const [session,         setSession]        = useState(null);
+  const [name,        setName]       = useState(user?.user_metadata?.full_name || '');
+  const [newPw,       setNewPw]      = useState('');
+  const [confirmPw,   setConfirmPw]  = useState('');
+  const [deleteInput, setDeleteInput] = useState('');
+  const [session,     setSession]    = useState(null);
 
-  const [nameMsg,   setNameMsg]   = useState(null); // { ok, text }
-  const [emailMsg,  setEmailMsg]  = useState(null);
-  const [pwMsg,     setPwMsg]     = useState(null);
+  const [nameMsg, setNameMsg] = useState(null); // { ok, text }
+  const [pwMsg,   setPwMsg]   = useState(null);
   const [deleting,  setDeleting]  = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
@@ -43,12 +41,6 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
     else { flash(setNameMsg, true, 'Name updated.'); onUserUpdate?.(); }
   }
 
-  async function saveEmail(e) {
-    e.preventDefault();
-    const { error } = await supabase.auth.updateUser({ email });
-    if (error) flash(setEmailMsg, false, error.message);
-    else flash(setEmailMsg, true, 'Confirmation sent to new email.');
-  }
 
   async function savePassword(e) {
     e.preventDefault();
@@ -107,17 +99,7 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
       {/* ── Email ─────────────────────────────────────────────── */}
       <div className="profile-section">
         <div className="profile-section-title">Email Address</div>
-        <form className="profile-form" onSubmit={saveEmail}>
-          <input
-            className="profile-input"
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-          <button className="profile-save-btn" type="submit">Save</button>
-        </form>
-        {emailMsg && <div className={`profile-msg ${emailMsg.ok ? 'ok' : 'err'}`}>{emailMsg.text}</div>}
+        <div className="profile-email-display">{user?.email}</div>
       </div>
 
       {/* ── Password ──────────────────────────────────────────── */}
@@ -161,10 +143,6 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
           <div className="session-card-row">
             <div className="session-label">Account created</div>
             <div className="session-val">{formatDate(user?.created_at)}</div>
-          </div>
-          <div className="session-card-row">
-            <div className="session-label">Session expires</div>
-            <div className="session-val">{session ? formatDate(new Date(session.expires_at * 1000).toISOString()) : '—'}</div>
           </div>
         </div>
         <div className="session-btn-row">

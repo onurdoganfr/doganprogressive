@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { formatDate } from '../utils/date.js';
-import { safeParse } from '../utils/storage.js';
 
 const FIELDS = [
-  { key: 'rightArm',  label: 'Right Arm' },
-  { key: 'leftArm',   label: 'Left Arm' },
-  { key: 'shoulders', label: 'Shoulders' },
-  { key: 'chest',     label: 'Chest' },
-  { key: 'waist',     label: 'Waist' },
-  { key: 'hips',      label: 'Hips' },
-  { key: 'rightLeg',  label: 'Right Leg' },
-  { key: 'leftLeg',   label: 'Left Leg' },
+  { key: 'weight',    label: 'Weight',    unit: 'kg' },
+  { key: 'rightArm',  label: 'Right Arm', unit: 'cm' },
+  { key: 'leftArm',   label: 'Left Arm',  unit: 'cm' },
+  { key: 'shoulders', label: 'Shoulders', unit: 'cm' },
+  { key: 'chest',     label: 'Chest',     unit: 'cm' },
+  { key: 'waist',     label: 'Waist',     unit: 'cm' },
+  { key: 'hips',      label: 'Hips',      unit: 'cm' },
+  { key: 'rightLeg',  label: 'Right Leg', unit: 'cm' },
+  { key: 'leftLeg',   label: 'Left Leg',  unit: 'cm' },
 ];
 
 export default function Measurements({ measurements, onSave, onDelete }) {
@@ -18,9 +18,9 @@ export default function Measurements({ measurements, onSave, onDelete }) {
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [form, setForm] = useState({});
 
-  const sorted  = [...measurements].sort((a, b) => new Date(a.date) - new Date(b.date));
-  const latest  = sorted.length > 0 ? sorted[sorted.length - 1] : null;
-  const prev    = sorted.length > 1 ? sorted[sorted.length - 2] : null;
+  const sorted = [...measurements].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const latest = sorted.length > 0 ? sorted[sorted.length - 1] : null;
+  const prev   = sorted.length > 1 ? sorted[sorted.length - 2] : null;
 
   function handleSave() {
     const hasAny = FIELDS.some(f => form[f.key] !== '' && form[f.key] != null);
@@ -36,8 +36,7 @@ export default function Measurements({ measurements, onSave, onDelete }) {
     const a = parseFloat(latest.values[key]);
     const b = parseFloat(prev.values[key]);
     if (isNaN(a) || isNaN(b)) return null;
-    const d = (a - b).toFixed(1);
-    return d;
+    return (a - b).toFixed(1);
   }
 
   return (
@@ -59,7 +58,7 @@ export default function Measurements({ measurements, onSave, onDelete }) {
           </div>
           <div className="meas-input-grid">
             {FIELDS.map(f => (
-              <div key={f.key} className="meas-field">
+              <div key={f.key} className={`meas-field${f.key === 'weight' ? ' meas-field-weight' : ''}`}>
                 <label className="meas-label">{f.label}</label>
                 <div className="meas-input-wrap">
                   <input
@@ -69,7 +68,7 @@ export default function Measurements({ measurements, onSave, onDelete }) {
                     value={form[f.key] || ''}
                     onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
                   />
-                  <span className="meas-unit">cm</span>
+                  <span className="meas-unit">{f.unit}</span>
                 </div>
               </div>
             ))}
@@ -98,15 +97,15 @@ export default function Measurements({ measurements, onSave, onDelete }) {
               const d   = diff(f.key);
               const dn  = parseFloat(d);
               return (
-                <div key={f.key} className="meas-latest-card">
+                <div key={f.key} className={`meas-latest-card${f.key === 'weight' ? ' meas-card-weight' : ''}`}>
                   <div className="meas-latest-label">{f.label}</div>
                   <div className="meas-latest-val">
                     {val ? `${val}` : '—'}
-                    {val ? <span className="meas-latest-unit"> cm</span> : ''}
+                    {val ? <span className="meas-latest-unit"> {f.unit}</span> : ''}
                   </div>
                   {d !== null && dn !== 0 && (
                     <div className={`meas-diff ${dn > 0 ? 'pos' : 'neg'}`}>
-                      {dn > 0 ? '+' : ''}{d} cm
+                      {dn > 0 ? '+' : ''}{d} {f.unit}
                     </div>
                   )}
                   {d !== null && dn === 0 && (
@@ -137,7 +136,7 @@ export default function Measurements({ measurements, onSave, onDelete }) {
                 <div className="meas-hist-vals">
                   {FIELDS.filter(f => entry.values[f.key]).map(f => (
                     <span key={f.key} className="meas-hist-item">
-                      <span className="meas-hist-key">{f.label}</span> {entry.values[f.key]} cm
+                      <span className="meas-hist-key">{f.label}</span> {entry.values[f.key]} {f.unit}
                     </span>
                   ))}
                 </div>

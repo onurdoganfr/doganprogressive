@@ -11,6 +11,7 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
   const [data,        setData]        = useState({});
   const [workoutDate, setWorkoutDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [showTimer,   setShowTimer]   = useState(false);
+  const [timerKey,    setTimerKey]    = useState(0);
 
   function startProgram(prog) {
     setProgram(prog);
@@ -43,6 +44,25 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
       ...d,
       [ex]: { ...d[ex], sets: [...d[ex].sets, { weight: '', reps: '' }] }
     }));
+    // Auto-start rest timer when a set is completed
+    setShowTimer(true);
+    setTimerKey(k => k + 1);
+  }
+
+  function fillAll() {
+    setData(d => {
+      const newData = { ...d };
+      program.exercises.forEach(ex => {
+        if (isTreadmill(ex) || isJumpRope(ex)) return;
+        if (!hasPrevData(ex)) return;
+        const filled = d[ex].sets.map((set, i) => {
+          const prev = getPrevForExercise(history, ex, i);
+          return prev ? { weight: prev.weight, reps: prev.reps } : set;
+        });
+        newData[ex] = { ...d[ex], sets: filled };
+      });
+      return newData;
+    });
   }
 
   function removeSet(ex, setIndex) {
@@ -96,7 +116,7 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
         <button className="back-btn" style={{ margin: 0 }} onClick={onCancel}>←</button>
         <div className="add-title">Add Workout</div>
       </div>
-      <p style={{ color: '#444', fontSize: '0.875rem', marginBottom: 20 }}>Choose a program</p>
+      <p style={{ color: 'var(--text-3)', fontSize: '0.875rem', marginBottom: 20 }}>Choose a program</p>
       <div className="program-grid">
         <button className="program-card-offday" onClick={() => setStep('offday')}>
           <span className="offday-card-label">Off Day</span>
@@ -133,6 +153,8 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
 
   /* ── Workout form ── */
   const exList = program.exercises;
+  const hasAnyPrevData = exList.some(ex => !isTreadmill(ex) && !isJumpRope(ex) && hasPrevData(ex));
+
   return (
     <>
       <div className="add-header">
@@ -140,6 +162,15 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
         <div className="add-title">Add Workout</div>
         <span className={`day-tag ${program.tagClass}`}>{program.name}</span>
         <input type="date" className="date-picker" value={workoutDate} onChange={e => setWorkoutDate(e.target.value)} />
+        {hasAnyPrevData && (
+          <button className="fill-all-btn" onClick={fillAll} title="Fill all exercises from last session">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14">
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              <path d="M5 21h14"/>
+            </svg>
+            Fill Last Session
+          </button>
+        )}
         <button className={`timer-toggle-btn${showTimer ? ' active' : ''}`} onClick={() => setShowTimer(t => !t)} title="Rest Timer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16">
             <circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 15 15"/>
@@ -217,7 +248,7 @@ export default function AddWorkout({ history, programs, onSave, onSaveProgram, o
         <button className="btn-ghost" onClick={onCancel}>Cancel</button>
       </div>
 
-      {showTimer && <RestTimer onClose={() => setShowTimer(false)} />}
+      {showTimer && <RestTimer key={timerKey} onClose={() => setShowTimer(false)} />}
     </>
   );
 }

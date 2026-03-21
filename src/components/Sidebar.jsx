@@ -42,6 +42,11 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, us
               <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
             </svg>History
           </button>
+          <button className={`nav-link${view === 'records' ? ' active' : ''}`} onClick={() => setView('records')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>Records
+          </button>
           <button className={`nav-link${view === 'measurements' ? ' active' : ''}`} onClick={() => setView('measurements')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
@@ -147,6 +152,13 @@ export default function Sidebar({ view, setView, onAdd, theme, onToggleTheme, us
               </svg>
               History
               {(view === 'history' || view === 'detail') && <span className="mobile-menu-dot" />}
+            </button>
+            <button className={`mobile-menu-item${view === 'records' ? ' active' : ''}`} onClick={() => navigate('records')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              Records
+              {view === 'records' && <span className="mobile-menu-dot" />}
             </button>
             <button className={`mobile-menu-item${view === 'measurements' ? ' active' : ''}`} onClick={() => navigate('measurements')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

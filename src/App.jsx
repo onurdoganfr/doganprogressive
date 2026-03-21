@@ -11,6 +11,8 @@ import AddWorkout from './components/AddWorkout.jsx';
 import Measurements from './components/Measurements.jsx';
 import Settings from './components/Settings.jsx';
 import Profile from './components/Profile.jsx';
+import Records from './components/Records.jsx';
+import ExerciseChart from './components/ExerciseChart.jsx';
 
 // ── DB ↔ App converters ──────────────────────────────────────────────────────
 
@@ -87,6 +89,7 @@ export default function App() {
   const [showAdd,     setShowAdd]     = useState(false);
   const [prevView,    setPrevView]    = useState('dashboard');
   const [selectedDay, setSelectedDay] = useState(null);
+  const [chartEx,     setChartEx]     = useState(null);
 
   // ── Auth listener ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -211,15 +214,19 @@ export default function App() {
     );
   }
 
-  if (resetMode) return <Auth resetMode />;
-  if (!user) return <Auth />;
+  if (resetMode) return <Auth resetMode theme={theme} onToggleTheme={toggleTheme} />;
+  if (!user) return <Auth theme={theme} onToggleTheme={toggleTheme} />;
 
   return (
     <div className="app">
       <Sidebar
         view={showAdd ? 'add' : view}
         setView={v => { setShowAdd(false); setView(v); }}
-        onAdd={() => { setPrevView(view); setShowAdd(true); }}
+        onAdd={() => {
+          const safeViews = ['dashboard', 'history', 'records', 'measurements'];
+          setPrevView(safeViews.includes(view) ? view : 'dashboard');
+          setShowAdd(true);
+        }}
         theme={theme}
         onToggleTheme={toggleTheme}
         user={user}
@@ -243,7 +250,7 @@ export default function App() {
             onCancel={() => { setShowAdd(false); setView(prevView); }}
           />
         ) : view === 'dashboard' ? (
-          <Dashboard history={history} programs={programs} theme={theme} onToggleTheme={toggleTheme} />
+          <Dashboard history={history} programs={programs} theme={theme} onToggleTheme={toggleTheme} onExerciseClick={setChartEx} />
         ) : view === 'history' ? (
           <HistoryList history={history} onSelect={day => { setSelectedDay(day); setView('detail'); }} onDelete={handleDelete} />
         ) : view === 'detail' && selectedDay ? (
@@ -258,6 +265,8 @@ export default function App() {
             onImport={handleImport}
             onSignOut={() => supabase.auth.signOut()}
           />
+        ) : view === 'records' ? (
+          <Records history={history} />
         ) : view === 'profile' ? (
           <Profile
             user={user}
@@ -271,6 +280,9 @@ export default function App() {
           />
         ) : null}
       </main>
+      {chartEx && (
+        <ExerciseChart exercise={chartEx} history={history} onClose={() => setChartEx(null)} />
+      )}
     </div>
   );
 }

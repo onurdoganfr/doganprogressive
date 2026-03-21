@@ -1,67 +1,112 @@
-import { formatDate } from '../utils/date.js';
+import { useState } from 'react';
 
-export default function ExerciseChart({ exercise, history, onClose }) {
-  // Collect best weight per session for this exercise
-  const points = [];
-  history.forEach(session => {
-    const ex = session.data[exercise];
-    if (!ex?.sets) return;
-    let maxW = -Infinity, repsAtMax = null;
-    ex.sets.forEach(s => {
-      const w = parseFloat(s.weight);
-      if (!isNaN(w) && w > maxW) { maxW = w; repsAtMax = s.reps; }
-    });
-    if (maxW > -Infinity) points.push({ date: new Date(session.date), weight: maxW, reps: repsAtMax });
+function formatShortDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function LineChart({ data }) {
+  const [tooltip, setTooltip] = useState(null);
+
+  const W = 500, H = 200;
+  const PAD = { l: 48, r: 16, t: 16, b: 44 };
+  const pw = W - PAD.l - PAD.r;
+  const ph = H - PAD.t - PAD.b;
+
+  const weights = data.map(d => d.maxWeight);
+  const minW = Math.min(...weights);
+  const maxW = Math.max(...weights);
+  const range = maxW - minW || 1;
+
+  const yTicks = 4;
+  const yTickValues = Array.from({ length: yTicks + 1 }, (_, i) =>
+    Math.round(minW + (range / yTicks) * i)
+  );
+
+  const pts = data.map((d, i) => {
+    const x = PAD.l + (data.length === 1 ? pw / 2 : (i / (data.length - 1)) * pw);
+    const y = PAD.t + ph - ((d.maxWeight - minW) / range) * ph;
+    return { x, y, ...d };
   });
 
-  const hasData = points.length >= 2;
+  const polyline = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
-  // SVG dimensions
-  const W = 500, H = 180;
-  const PAD = { top: 16, right: 20, bottom: 36, left: 44 };
-  const plotW = W - PAD.left - PAD.right;
-  const plotH = H - PAD.top - PAD.bottom;
+  return (
+    <div className="exercise-chart-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} className="exercise-chart-svg" preserveAspectRatio="xMidYMid meet">
+        {yTickValues.map((v, i) => {
+          const y = PAD.t + ph - ((v - minW) / range) * ph;
+          return (
+            <g key={i}>
+              <line x1={PAD.l} y1={y} x2={W - PAD.r} y2={y}
+                stroke="var(--border-3)" strokeWidth="0.5" strokeDasharray="3 3" />
+              <text x={PAD.l - 6} y={y + 4} textAnchor="end"
+                fontSize="10" fill="var(--text-5)">{v}</text>
+            </g>
+          );
+        })}
 
-  let pathD = '', dots = [], yLabels = [], xLabels = [];
+        {pts.filter((_, i) => i === 0 || i === pts.length - 1 || (pts.length > 4 && i === Math.floor(pts.length / 2))).map((p, i) => (
+          <text key={i} x={p.x} y={H - 6} textAnchor="middle"
+            fontSize="9" fill="var(--text-5)">{formatShortDate(p.date)}</text>
+        ))}
 
-  if (hasData) {
-    const weights = points.map(p => p.weight);
-    const minW = Math.min(...weights);
-    const maxW = Math.max(...weights);
-    const minD = points[0].date.getTime();
-    const maxD = points[points.length - 1].date.getTime();
-    const rangeW = maxW - minW || 1;
-    const rangeD = maxD - minD || 1;
+        {pts.length > 1 && (
+          <polygon
+            points={`${pts[0].x},${PAD.t + ph} ${polyline} ${pts[pts.length - 1].x},${PAD.t + ph}`}
+            fill="var(--green)" fillOpacity="0.08" />
+        )}
 
-    const cx = d => PAD.left + ((d.getTime() - minD) / rangeD) * plotW;
-    const cy = w => PAD.top + plotH - ((w - minW) / rangeW) * plotH;
+        {pts.length > 1 && (
+          <polyline points={polyline} fill="none" stroke="var(--green)" strokeWidth="2" strokeLinejoin="round" />
+        )}
 
-    // Y grid labels (4 lines)
-    for (let i = 0; i <= 3; i++) {
-      const w = minW + (rangeW / 3) * i;
-      yLabels.push({ y: cy(w), label: `${Math.round(w)}` });
-    }
+        {pts.map((p, i) => (
+          <g key={i} style={{ cursor: 'pointer' }}
+            onMouseEnter={() => setTooltip(p)}
+            onMouseLeave={() => setTooltip(null)}
+            onClick={() => setTooltip(t => t === p ? null : p)}>
+            <circle cx={p.x} cy={p.y} r="14" fill="transparent" />
+            <circle cx={p.x} cy={p.y} r={tooltip === p ? 6 : 4}
+              fill="var(--green)" stroke="var(--bg)" strokeWidth="2" />
+          </g>
+        ))}
 
-    // X labels (up to 5 evenly spaced)
-    const step = Math.max(1, Math.floor(points.length / 4));
-    points.forEach((p, i) => {
-      if (i === 0 || i === points.length - 1 || i % step === 0)
-        xLabels.push({ x: cx(p.date), label: p.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) });
-    });
+        {tooltip && (() => {
+          const tx = Math.min(Math.max(tooltip.x, 60), W - 60);
+          const ty = tooltip.y > PAD.t + 40 ? tooltip.y - 36 : tooltip.y + 14;
+          return (
+            <g>
+              <rect x={tx - 52} y={ty - 14} width="104" height="26" rx="5"
+                fill="var(--surface)" stroke="var(--border-3)" strokeWidth="1" />
+              <text x={tx} y={ty + 4} textAnchor="middle" fontSize="11" fill="var(--text-1)" fontWeight="600">
+                {tooltip.maxWeight} kg × {tooltip.reps} reps
+              </text>
+            </g>
+          );
+        })()}
+      </svg>
+    </div>
+  );
+}
 
-    pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${cx(p.date)},${cy(p.weight)}`).join(' ');
+export default function ExerciseChart({ exercise, history, onClose }) {
+  const sessions = history
+    .filter(h => h.data && h.data[exercise]?.sets?.length > 0)
+    .map(h => {
+      const sets = h.data[exercise].sets;
+      const validSets = sets.filter(s => parseFloat(s.weight) > 0);
+      if (validSets.length === 0) return null;
+      const maxWeight = Math.max(...validSets.map(s => parseFloat(s.weight)));
+      const bestSet   = validSets.find(s => parseFloat(s.weight) === maxWeight);
+      return { date: h.date, maxWeight, reps: bestSet?.reps || '—' };
+    })
+    .filter(Boolean)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    dots = points.map(p => ({
-      cx: cx(p.date), cy: cy(p.weight),
-      weight: p.weight, reps: p.reps, date: p.date,
-      isPR: p.weight === maxW,
-    }));
-  }
-
-  const first  = points[0];
-  const latest = points[points.length - 1];
-  const best   = points.reduce((b, p) => p.weight > b.weight ? p : b, points[0] || { weight: 0 });
-  const gain   = hasData ? (latest.weight - first.weight) : 0;
+  const pr = sessions.length > 0
+    ? sessions.reduce((best, s) => s.maxWeight > best.maxWeight ? s : best, sessions[0])
+    : null;
 
   return (
     <div className="chart-overlay" onClick={onClose}>
@@ -69,90 +114,44 @@ export default function ExerciseChart({ exercise, history, onClose }) {
         <div className="chart-modal-header">
           <div>
             <div className="chart-modal-title">{exercise}</div>
-            {hasData && (
-              <div className="chart-modal-sub">
-                {formatDate(first.date)} → {formatDate(latest.date)}
-              </div>
-            )}
+            <div className="chart-modal-sub">Weight progression</div>
           </div>
-          <button className="chart-close-btn" onClick={onClose}>×</button>
+          <button className="chart-modal-close" onClick={onClose}>✕</button>
         </div>
 
-        {!hasData ? (
-          <div className="chart-no-data">
-            {points.length === 1 ? 'Need at least 2 sessions to show a chart.' : 'No weight data logged yet.'}
+        {pr && (
+          <div className="chart-pr-row">
+            <div className="chart-pr-card">
+              <div className="chart-pr-label">Personal Best</div>
+              <div className="chart-pr-val">{pr.maxWeight} kg <span>× {pr.reps}</span></div>
+            </div>
+            <div className="chart-pr-card">
+              <div className="chart-pr-label">Sessions</div>
+              <div className="chart-pr-val">{sessions.length}</div>
+            </div>
+          </div>
+        )}
+
+        {sessions.length === 0 ? (
+          <div className="chart-empty">No weight data recorded yet for this exercise.</div>
+        ) : sessions.length === 1 ? (
+          <div className="chart-single">
+            <div className="chart-single-val">{sessions[0].maxWeight} kg × {sessions[0].reps} reps</div>
+            <div className="chart-single-sub">First session — {formatShortDate(sessions[0].date)}</div>
           </div>
         ) : (
-          <>
-            <div className="chart-svg-wrap">
-              <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
-                {/* Grid lines */}
-                {yLabels.map(({ y, label }) => (
-                  <g key={label}>
-                    <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y}
-                      stroke="#1e1e1e" strokeWidth="1" />
-                    <text x={PAD.left - 6} y={y + 4} textAnchor="end"
-                      fill="#383838" fontSize="10" fontFamily="inherit">{label}</text>
-                  </g>
-                ))}
+          <LineChart data={sessions} />
+        )}
 
-                {/* X labels */}
-                {xLabels.map(({ x, label }) => (
-                  <text key={label} x={x} y={H - 6} textAnchor="middle"
-                    fill="#383838" fontSize="9" fontFamily="inherit">{label}</text>
-                ))}
-
-                {/* Line */}
-                <path d={pathD} fill="none" stroke="#2e5a2e" strokeWidth="2" strokeLinejoin="round" />
-
-                {/* Area fill */}
-                <path
-                  d={`${pathD} L${dots[dots.length - 1].cx},${PAD.top + plotH} L${dots[0].cx},${PAD.top + plotH} Z`}
-                  fill="url(#chartGrad)" opacity="0.25"
-                />
-                <defs>
-                  <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4caf50" />
-                    <stop offset="100%" stopColor="#4caf50" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-
-                {/* Dots */}
-                {dots.map((d, i) => (
-                  <g key={i}>
-                    <circle cx={d.cx} cy={d.cy} r={d.isPR ? 5 : 3.5}
-                      fill={d.isPR ? '#4caf50' : '#2e5a2e'} stroke="#111" strokeWidth="1.5" />
-                    {d.isPR && (
-                      <text x={d.cx} y={d.cy - 9} textAnchor="middle"
-                        fill="#4caf50" fontSize="9" fontFamily="inherit">{d.weight}kg</text>
-                    )}
-                  </g>
-                ))}
-              </svg>
-            </div>
-
-            {/* Stats row */}
-            <div className="chart-stats">
-              <div className="chart-stat">
-                <div className="chart-stat-val">{first.weight}kg</div>
-                <div className="chart-stat-label">First</div>
+        {sessions.length > 0 && (
+          <div className="chart-history">
+            {[...sessions].reverse().slice(0, 8).map((s, i) => (
+              <div key={i} className="chart-hist-row">
+                <span className="chart-hist-date">{formatShortDate(s.date)}</span>
+                <span className="chart-hist-val">{s.maxWeight} kg × {s.reps} reps</span>
               </div>
-              <div className="chart-stat">
-                <div className="chart-stat-val">{best.weight}kg</div>
-                <div className="chart-stat-label">Best PR</div>
-              </div>
-              <div className="chart-stat">
-                <div className="chart-stat-val">{latest.weight}kg</div>
-                <div className="chart-stat-label">Latest</div>
-              </div>
-              <div className="chart-stat">
-                <div className={`chart-stat-val ${gain >= 0 ? 'gain-pos' : 'gain-neg'}`}>
-                  {gain >= 0 ? '+' : ''}{gain}kg
-                </div>
-                <div className="chart-stat-label">Total Gain</div>
-              </div>
-            </div>
-          </>
+            ))}
+          </div>
         )}
       </div>
     </div>
