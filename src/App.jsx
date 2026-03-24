@@ -9,10 +9,10 @@ import HistoryList from './components/HistoryList.jsx';
 import DayDetail from './components/DayDetail.jsx';
 import AddWorkout from './components/AddWorkout.jsx';
 import Measurements from './components/Measurements.jsx';
-import Settings from './components/Settings.jsx';
 import Profile from './components/Profile.jsx';
 import Records from './components/Records.jsx';
 import ExerciseChart from './components/ExerciseChart.jsx';
+import BottomNav from './components/BottomNav.jsx';
 
 // ── DB ↔ App converters ──────────────────────────────────────────────────────
 
@@ -90,6 +90,7 @@ export default function App() {
   const [prevView,    setPrevView]    = useState('dashboard');
   const [selectedDay, setSelectedDay] = useState(null);
   const [chartEx,     setChartEx]     = useState(null);
+  const [repeatEntry, setRepeatEntry] = useState(null);
 
   // ── Auth listener ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -160,6 +161,12 @@ export default function App() {
     setHistory(prev => prev.filter(h => h.id !== id));
   }
 
+  async function handleUpdate(entry) {
+    await supabase.from('gym_history').update(entryToDb(entry, user.id)).eq('id', entry.id).eq('user_id', user.id);
+    setHistory(prev => prev.map(h => h.id === entry.id ? entry : h));
+    setSelectedDay(entry);
+  }
+
   // ── Programs CRUD ──────────────────────────────────────────────────────────
   async function savePrograms(updated) {
     const rows = updated.map(p => programToDb(p, user.id));
@@ -184,26 +191,6 @@ export default function App() {
   }
 
   // ── Backup import (from JSON file) ─────────────────────────────────────────
-  async function handleImport(data) {
-    setDataLoading(true);
-    await Promise.all([
-      supabase.from('gym_history').delete().eq('user_id', user.id),
-      supabase.from('gym_programs').delete().eq('user_id', user.id),
-      supabase.from('gym_measurements').delete().eq('user_id', user.id),
-    ]);
-
-    const hist = data.gymHistory || [];
-    const prog = data.gymPrograms || [];
-    const meas = data.gymMeasurements || [];
-
-    if (hist.length) await supabase.from('gym_history').insert(hist.map(e => entryToDb(e, user.id)));
-    if (prog.length) await supabase.from('gym_programs').insert(prog.map(p => programToDb(p, user.id)));
-    else await seedPrograms(user.id);
-    if (meas.length) await supabase.from('gym_measurements').insert(meas.map(m => measurementToDb(m, user.id)));
-
-    await loadData(user.id);
-  }
-
   // ── Render ─────────────────────────────────────────────────────────────────
   if (!authReady || (user && dataLoading && history.length === 0 && programs.length === 0)) {
     return (
@@ -241,30 +228,33 @@ export default function App() {
       <main className="main">
         {showAdd ? (
           <AddWorkout
+            key={repeatEntry ? `repeat-${repeatEntry.id}` : 'new'}
             history={history}
             programs={programs}
-            onSave={handleSave}
+            initialEntry={repeatEntry}
+            onSave={entry => { setRepeatEntry(null); handleSave(entry); }}
             onSaveProgram={prog => savePrograms([...programs, prog])}
             onDeleteProgram={handleDeleteProgram}
             onUpdateProgram={updated => savePrograms(programs.map(p => p.id === updated.id ? updated : p))}
-            onCancel={() => { setShowAdd(false); setView(prevView); }}
+            onCancel={() => { setRepeatEntry(null); setShowAdd(false); setView('dashboard'); }}
           />
         ) : view === 'dashboard' ? (
           <Dashboard history={history} programs={programs} theme={theme} onToggleTheme={toggleTheme} onExerciseClick={setChartEx} />
         ) : view === 'history' ? (
           <HistoryList history={history} onSelect={day => { setSelectedDay(day); setView('detail'); }} onDelete={handleDelete} />
         ) : view === 'detail' && selectedDay ? (
-          <DayDetail day={selectedDay} onBack={() => setView('history')} />
+          <DayDetail
+            day={selectedDay}
+            onBack={() => setView('history')}
+            onUpdate={handleUpdate}
+            onRepeat={entry => {
+              setPrevView('history');
+              setRepeatEntry(entry);
+              setShowAdd(true);
+            }}
+          />
         ) : view === 'measurements' ? (
           <Measurements measurements={measurements} onSave={saveMeasurement} onDelete={deleteMeasurement} />
-        ) : view === 'settings' ? (
-          <Settings
-            history={history}
-            programs={programs}
-            measurements={measurements}
-            onImport={handleImport}
-            onSignOut={() => supabase.auth.signOut()}
-          />
         ) : view === 'records' ? (
           <Records history={history} />
         ) : view === 'profile' ? (
@@ -283,6 +273,18 @@ export default function App() {
       {chartEx && (
         <ExerciseChart exercise={chartEx} history={history} onClose={() => setChartEx(null)} />
       )}
+      <BottomNav
+        view={view}
+        showAdd={showAdd}
+        user={user}
+        setView={v => { setShowAdd(false); setView(v); }}
+        onAdd={() => {
+          const safeViews = ['dashboard', 'history', 'records', 'measurements'];
+          setPrevView(safeViews.includes(view) ? view : 'dashboard');
+          setShowAdd(true);
+        }}
+        onProfile={() => { setShowAdd(false); setView('profile'); }}
+      />
     </div>
   );
 }

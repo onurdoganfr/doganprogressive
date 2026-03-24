@@ -45,8 +45,8 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
     const ms = d.getTime();
     const count = history.filter(h => {
       const hd = new Date(h.date); hd.setHours(0,0,0,0); return hd.getTime() === ms;
-    }).reduce((sum, s) => sum + Object.entries(s.data).filter(([, ex]) =>
-      ex.sets?.some(set => set.weight !== '' || set.reps !== '')
+    }).reduce((sum, s) => sum + Object.entries(s.data).filter(([n, ex]) =>
+      n !== '__order' && ex.sets?.some(set => set.weight !== '' || set.reps !== '')
     ).length, 0);
     return { d, count };
   });
@@ -55,7 +55,7 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
   // Most trained exercises
   const exCounts = {};
   history.forEach(s => Object.entries(s.data).forEach(([n, ex]) => {
-    if (ex.sets?.some(set => set.weight !== '' || set.reps !== ''))
+    if (n !== '__order' && ex.sets?.some(set => set.weight !== '' || set.reps !== ''))
       exCounts[n] = (exCounts[n] || 0) + 1;
   }));
   const topEx = Object.entries(exCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
@@ -63,7 +63,7 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
 
   // Personal bests
   const allLogged = new Set();
-  history.forEach(d => Object.keys(d.data).forEach(e => allLogged.add(e)));
+  history.forEach(d => Object.keys(d.data).forEach(e => { if (e !== '__order') allLogged.add(e); }));
   const bests = [...allLogged]
     .map(ex => ({ ex, latest: getLatestForExercise(history, ex) }))
     .filter(({ latest }) => latest?.weight);

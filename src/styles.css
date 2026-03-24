@@ -1,63 +1,65 @@
 /* ── CSS Variables (Dark theme defaults) ──────────────────── */
 :root {
-  --bg:           #111;
-  --bg-deep:      #0d0d0d;
-  --surface:      #161616;
-  --surface-2:    #1a1a1a;
-  --surface-3:    #1c1c1c;
-  --border:       #1e1e1e;
-  --border-2:     #222;
-  --border-3:     #252525;
-  --border-4:     #2e2e2e;
-  --border-5:     #333;
-  --border-6:     #383838;
-  --text-1:       #eee;
-  --text-2:       #888;
-  --text-3:       #555;
-  --text-4:       #444;
-  --text-5:       #333;
-  --text-6:       #2a2a2a;
-  --text-7:       #282828;
+  color-scheme: dark;
+  --bg:           #141417;
+  --bg-deep:      #0e0e11;
+  --surface:      #252529;
+  --surface-2:    #2f2f34;
+  --surface-3:    #343439;
+  --border:       #353539;
+  --border-2:     #3e3e44;
+  --border-3:     #454550;
+  --border-4:     #505058;
+  --border-5:     #5c5c65;
+  --border-6:     #68686e;
+  --text-1:       #f0f0f5;
+  --text-2:       #a8a8ae;
+  --text-3:       #7e7e86;
+  --text-4:       #6a6a72;
+  --text-5:       #57575f;
+  --text-6:       #484850;
+  --text-7:       #3e3e46;
   --green:        #5cba5c;
   --green-2:      #4caf50;
-  --green-bg:     #0d1f0e;
-  --green-border: #1e4a1e;
-  --green-border-2: #2a5a2a;
-  --green-mid:    #2a4a2a;
-  --green-mid-2:  #3d6b3d;
+  --green-bg:     #0f2210;
+  --green-border: #1f4d1f;
+  --green-border-2: #2b5e2b;
+  --green-mid:    #2d4f2d;
+  --green-mid-2:  #406e40;
   --green-text:   #4a8a4a;
   --green-day-sub: #3a7a3a;
   --green-heatmap: #2e5a2e;
   --red:          #c62828;
-  --red-bg:       #1e0f0f;
+  --red-bg:       #2a1212;
   --blue:         #5a6abf;
-  --blue-bg:      #0f1a2a;
+  --blue-bg:      #162030;
   --purple:       #7986cb;
-  --tag-push-bg:  #1a1530; --tag-push:  #9575cd;
-  --tag-pull-bg:  #0d2020; --tag-pull:  #4db6ac;
-  --tag-custom-bg:#1a1200; --tag-custom:#f9a825;
-  --btn-bg:       #fff;
+  --tag-push-bg:  #231d3e; --tag-push:  #9575cd;
+  --tag-pull-bg:  #142a2a; --tag-pull:  #4db6ac;
+  --tag-custom-bg:#231800; --tag-custom:#f9a825;
+  --btn-bg:       #f0f0f5;
   --btn-color:    #111;
   --overlay:      rgba(0,0,0,0.75);
-  --shadow:       rgba(0,0,0,0.6);
-  --nav-bg:       rgba(10, 10, 10, 0.96);
-  --nav-border:   #1c1c1c;
+  --shadow:       rgba(0,0,0,0.5);
+  --nav-bg:       rgba(22, 22, 24, 0.97);
+  --nav-border:   #303035;
   --date-filter:  invert(0.35);
 }
 
 /* ── Light theme overrides ────────────────────────────────── */
 [data-theme="light"] {
-  --bg:           #f5f3ee;
-  --bg-deep:      #eeece7;
-  --surface:      #ffffff;
-  --surface-2:    #f2f0eb;
-  --surface-3:    #edeae4;
-  --border:       #e4e0d8;
-  --border-2:     #ddd9d1;
-  --border-3:     #d0ccc4;
-  --border-4:     #c4c0b8;
-  --border-5:     #b8b4ac;
-  --border-6:     #a8a4a0;
+  color-scheme: light;
+  --bg:           #f0ede8;
+  --bg-deep:      #e9e5df;
+  --surface:      #faf8f4;
+  --surface-2:    #ede9e2;
+  --surface-3:    #e8e4dc;
+  --border:       #dedad2;
+  --border-2:     #d5d0c8;
+  --border-3:     #cac5bc;
+  --border-4:     #bdb8b0;
+  --border-5:     #b0aba4;
+  --border-6:     #a09b94;
   --text-1:       #1a1818;
   --text-2:       #5a5654;
   --text-3:       #7a7674;
@@ -67,7 +69,7 @@
   --text-7:       #c0bcb8;
   --green:        #267a26;
   --green-2:      #2e8b2e;
-  --green-bg:     #edf7ed;
+  --green-bg:     #e8f5e8;
   --green-border: #9ecf9e;
   --green-border-2: #7ab87a;
   --green-mid:    #c8e6c8;
@@ -76,9 +78,9 @@
   --green-day-sub: #3a8a3a;
   --green-heatmap: #7fc27f;
   --red:          #c62828;
-  --red-bg:       #fef0f0;
+  --red-bg:       #faeaea;
   --blue:         #4454b0;
-  --blue-bg:      #eef0fc;
+  --blue-bg:      #eaecf8;
   --purple:       #6366f1;
   --tag-push-bg:  #ede8f8; --tag-push:  #6842c2;
   --tag-pull-bg:  #e5f3f2; --tag-pull:  #1a7068;
@@ -86,9 +88,9 @@
   --btn-bg:       #1a1818;
   --btn-color:    #fff;
   --overlay:      rgba(0,0,0,0.45);
-  --shadow:       rgba(0,0,0,0.12);
-  --nav-bg:       rgba(245, 243, 238, 0.96);
-  --nav-border:   #e4e0d8;
+  --shadow:       rgba(0,0,0,0.10);
+  --nav-bg:       rgba(240, 237, 232, 0.97);
+  --nav-border:   #dedad2;
   --date-filter:  invert(0.6);
 }
 
@@ -257,9 +259,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .custom-tag-active { font-size: 0.78rem; padding: 4px 10px; border-radius: 20px; background: var(--tag-custom-bg); color: var(--tag-custom); font-weight: 600; }
 .edit-ex-link { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 0.78rem; text-decoration: underline; text-underline-offset: 2px; }
 .edit-ex-link:hover { color: var(--text-2); }
-.date-picker { background: var(--surface); border: 1px solid var(--border-3); border-radius: 7px; color: var(--text-3); font-size: 0.82rem; padding: 6px 10px; outline: none; cursor: pointer; font-family: inherit; }
+.date-picker { background: var(--surface); border: 1px solid var(--border-3); border-radius: 7px; color: var(--text-3); font-size: 0.82rem; padding: 6px 10px; outline: none; cursor: pointer; font-family: inherit; text-align: center; }
 .date-picker:focus { border-color: var(--border-5); color: var(--text-1); }
-.date-picker::-webkit-calendar-picker-indicator { filter: var(--date-filter); cursor: pointer; }
+.date-picker::-webkit-calendar-picker-indicator { cursor: pointer; }
 
 /* Program selector */
 .program-grid { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -612,7 +614,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   /* ── Stepper: bigger touch targets ───────────────────────*/
   .step-btn { width: 30px; height: 34px; font-size: 1.1rem; }
-  .step-val { width: 48px; height: 34px; font-size: 0.875rem; }
+  .step-val { width: 48px; height: 34px; font-size: 1rem; }
+
+  /* ── Prevent iOS Safari zoom on input focus ───────────── */
+  input, textarea, select { font-size: max(1rem, 16px); }
 
   /* ── Set row: wrap label+inputs+actions cleanly ───────── */
   .set-row { padding: 10px 10px; gap: 8px; }
@@ -647,7 +652,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .day-strip-wrap { margin-bottom: 20px; }
 
   /* ── Measurements ──────────────────────────────────────── */
-  .meas-input-grid { grid-template-columns: repeat(2, 1fr); }
+  .meas-input-grid { grid-template-columns: 1fr; }
   .meas-latest-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -655,7 +660,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 @media (max-width: 420px) {
   .stats-row  { grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .bests-grid { grid-template-columns: 1fr; }
-  .main { padding: 90px 12px 80px; }
+  .main { padding: 90px 12px 32px; }
   .set-inputs { gap: 6px; }
   .meas-form-card { padding: 14px; }
   .meas-input-grid { grid-template-columns: 1fr; }
@@ -1174,6 +1179,70 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   gap: 3px;
 }
 
+/* ── Hero card (new design) ──────────────────────────────── */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.profile-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* ── Section divider ─────────────────────────────────────── */
+.profile-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 18px 0;
+}
+
+/* ── Footer actions (Privacy + Delete) ───────────────────── */
+.profile-footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.profile-footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: 1px solid var(--border-3);
+  border-radius: 10px;
+  color: var(--text-3);
+  font-size: 0.83rem;
+  font-weight: 500;
+  padding: 11px 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+}
+
+.profile-footer-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+.profile-footer-btn--danger {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.profile-footer-btn--danger:hover {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
 .profile-avatar {
   width: 72px;
   height: 72px;
@@ -1185,7 +1254,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
 .profile-avatar-name {
@@ -1219,6 +1288,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   color: var(--text-5);
   text-transform: uppercase;
   margin-bottom: 14px;
+}
+
+.profile-section-sub {
+  font-size: 0.78rem;
+  color: var(--text-4);
+  margin-bottom: 12px;
+  margin-top: -8px;
+}
+
+.profile-settings-heading {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 32px 0 4px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
 }
 
 .profile-form {
@@ -1506,16 +1591,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+}
+
+.records-row-right-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 100px;
 }
 
 .records-weight {
   font-size: 1.05rem;
   font-weight: 800;
   color: var(--green);
+  white-space: nowrap;
 }
 
 .records-weight span { font-size: 0.72rem; font-weight: 500; color: var(--text-4); }
-.records-reps        { font-size: 0.78rem; color: var(--text-4); }
+.records-reps        { font-size: 0.78rem; color: var(--text-4); white-space: nowrap; }
 
 .records-arrow {
   width: 16px;
@@ -1852,6 +1947,227 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 }
 
 /* ══════════════════════════════════════════════════════════
+   BOTTOM NAV BAR
+══════════════════════════════════════════════════════════ */
+.bnav { display: none; }
+
+@media (max-width: 768px) {
+  /* ── Outer wrapper — floats above content ── */
+  .bnav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ── Main pill ── */
+  .bnav-pill {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border-radius: 100px;
+    padding: 6px 6px;
+    gap: 2px;
+    box-shadow: 0 4px 24px var(--shadow), 0 1px 0 var(--border) inset;
+    border: 1px solid var(--border-3);
+  }
+
+  /* ── Each nav item inside pill ── */
+  .bnav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 10px;
+    background: none;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    min-width: 52px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .bnav-item:active { opacity: 0.7; }
+
+  /* Icon */
+  .bnav-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-4);
+    transition: color 0.15s;
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Active — pill background on the item */
+  .bnav-item--active {
+    background: var(--surface-3);
+  }
+  .bnav-item--active .bnav-icon-wrap {
+    color: var(--text-1);
+  }
+
+  /* Add item — always green tinted */
+  .bnav-item--add .bnav-icon-wrap {
+    color: var(--green);
+  }
+  .bnav-item--add {
+    background: var(--green-bg);
+  }
+  .bnav-item--add.bnav-item--active {
+    background: var(--green);
+  }
+  .bnav-item--add.bnav-item--active .bnav-icon-wrap {
+    color: #fff;
+  }
+
+  /* Labels */
+  .bnav-label {
+    font-size: 0.58rem;
+    font-weight: 500;
+    color: var(--text-4);
+    white-space: nowrap;
+    letter-spacing: 0.1px;
+  }
+  .bnav-item--active .bnav-label  { color: var(--text-1); font-weight: 700; }
+  .bnav-item--add .bnav-label     { color: var(--green); font-weight: 600; }
+  .bnav-item--add.bnav-item--active .bnav-label { color: #fff; }
+
+  /* ── Profile avatar circle (outside pill) ── */
+  .bnav-avatar-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface);
+    color: var(--text-3);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    box-shadow: 0 4px 24px var(--shadow), 0 1px 0 var(--border) inset;
+    border: 1px solid var(--border-3);
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bnav-avatar-btn:active       { transform: scale(0.92); }
+  .bnav-avatar-btn--active      { background: var(--text-1); color: var(--bg); }
+
+  /* Main content bottom padding */
+  .main { padding-bottom: 96px !important; }
+
+  /* Hide old mobile nav */
+  .mobile-nav { display: none !important; }
+  .fluid-fab  { display: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   FLUID FAB MENU
+══════════════════════════════════════════════════════════ */
+.fluid-fab {
+  display: none; /* mobile only — shown in mobile media query */
+}
+
+.fluid-fab-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  background: transparent;
+}
+
+.fluid-fab-container {
+  position: relative;
+  width: 56px;
+  height: 56px;
+}
+
+/* All items: circular, centered icon */
+.fluid-fab-item {
+  width: 56px;
+  height: 56px;
+  border: none;
+  background: var(--surface-2);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fluid-fab-item--active {
+  color: var(--green);
+  background: var(--green-bg);
+}
+
+.fluid-fab-item--add {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+/* Trigger — always visible, styled like a primary button */
+.fluid-fab-trigger {
+  position: relative;
+  z-index: 50;
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  box-shadow: 0 4px 20px var(--shadow);
+  clip-path: circle(50% at 50% 50%);
+}
+
+/* ── Hamburger ↔ X icon transition ── */
+.fab-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+
+.fab-icon-menu {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+.fluid-fab-container[data-expanded="true"] .fab-icon-menu {
+  opacity: 0;
+  transform: scale(0) rotate(180deg);
+}
+
+.fab-icon-close {
+  opacity: 0;
+  transform: scale(0) rotate(-180deg);
+}
+.fluid-fab-container[data-expanded="true"] .fab-icon-close {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* ── Show FAB on mobile, hide old bottom nav ── */
+@media (max-width: 768px) {
+  .fluid-fab {
+    display: block;
+    position: fixed;
+    bottom: 28px;
+    right: 20px;
+    z-index: 45;
+  }
+
+  /* Replace the old mobile bottom nav with the FAB */
+  .mobile-nav { display: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════
    AUTH — RESPONSIVE
 ══════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
@@ -1897,4 +2213,753 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .auth-right {
     padding: 40px 32px;
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   DAY DETAIL — REDESIGN
+══════════════════════════════════════════════════════════ */
+.dd-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 40px;
+}
+
+/* Header */
+.dd-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 16px;
+  position: relative;
+}
+
+.dd-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.dd-back-btn:hover { background: var(--surface-2); color: var(--text-1); }
+
+.dd-header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.1px;
+}
+
+.dd-edit-pill {
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: none;
+  background: #f97316;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+}
+
+.dd-cancel-btn {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--border-3);
+  background: transparent;
+  color: var(--text-2);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.dd-save-btn {
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: none;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dd-header-right { width: 60px; } /* spacer to balance edit pill */
+
+/* Summary card */
+.dd-summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.dd-summary-top {
+  margin-bottom: 10px;
+}
+
+.dd-summary-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 14px;
+}
+
+.dd-summary-meta {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.dd-meta-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dd-meta-divider {
+  width: 1px;
+  background: var(--border);
+  margin: 0 20px;
+}
+
+.dd-meta-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.dd-meta-val {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+/* Section header */
+.dd-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.dd-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.dd-section-count {
+  font-size: 0.78rem;
+  color: var(--text-3);
+  background: var(--surface-2);
+  border-radius: 100px;
+  padding: 2px 10px;
+}
+
+/* Exercise list */
+.dd-ex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dd-ex-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.dd-ex-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.dd-ex-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dd-ex-icon-wrap--cardio {
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+
+.dd-ex-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dd-ex-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.dd-ex-sub {
+  font-size: 0.72rem;
+  color: var(--text-3);
+}
+
+.dd-ex-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 16px;
+}
+
+/* Set rows */
+.dd-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.dd-set-row:last-child { border-bottom: none; }
+
+/* AddWorkout strength set rows — 3-column grid */
+.aw-set-grid-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px 9px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.aw-set-grid-row:last-of-type { border-bottom: none; }
+.aw-set-grid-row.aw-set-row--pr { background: var(--green-bg); }
+
+/* Col 1: label + last info stacked */
+.aw-label-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.aw-label-col .dd-set-label { min-width: unset; }
+
+/* Col 2: inputs always centered */
+.aw-set-grid-row .dd-set-edit-row {
+  justify-content: center;
+}
+
+/* Col 3: delete button right-aligned */
+.aw-del-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.dd-set-row--empty {
+  opacity: 0.45;
+}
+
+.dd-set-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-3);
+  min-width: 48px;
+}
+
+.dd-set-val {
+  font-size: 0.88rem;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.dd-set-val strong {
+  color: var(--text-1);
+  font-weight: 700;
+}
+
+.dd-unit {
+  font-size: 0.72rem;
+  color: var(--text-3);
+}
+
+.dd-x {
+  color: var(--text-3);
+  font-size: 0.75rem;
+  margin: 0 2px;
+}
+
+.dd-not-logged {
+  font-size: 0.78rem;
+  color: var(--text-4);
+  font-style: italic;
+}
+
+/* Edit mode */
+.dd-set-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dd-input {
+  width: 64px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-3);
+  background: var(--surface-2);
+  color: var(--text-1);
+  font-size: 0.88rem;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.dd-input::-webkit-outer-spin-button,
+.dd-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.dd-input:focus { outline: none; border-color: var(--green); }
+
+.dd-input--wide { width: 90px; }
+
+.dd-cardio-inputs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dd-cardio-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: var(--text-3);
+}
+.dd-cardio-field input { width: 58px; }
+
+.dd-del-set-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border-3);
+  background: var(--red-bg);
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dd-add-set-btn {
+  width: 100%;
+  padding: 9px;
+  border: none;
+  border-top: 1px dashed var(--border-2);
+  background: transparent;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: background 0.15s;
+}
+.dd-add-set-btn:hover { background: var(--green-bg); }
+
+/* Repeat workout button */
+.dd-repeat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-3);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.dd-repeat-btn:hover {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* Off day detail */
+.offday-detail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--text-2);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   ADD WORKOUT — ACTIVE FORM (set rows inside dd-ex-card)
+══════════════════════════════════════════════════════════ */
+.aw-ex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.aw-set-row {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aw-set-row:last-of-type { border-bottom: none; }
+.aw-set-row--pr { background: var(--green-bg); }
+
+.aw-set-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aw-set-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-3);
+  min-width: 46px;
+  flex-shrink: 0;
+}
+
+.aw-set-steppers {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.aw-set-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.aw-prev-val {
+  font-size: 0.68rem;
+  color: var(--text-3);
+  font-weight: 500;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.aw-pr-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.aw-cardio-row {
+  padding: 12px 16px;
+}
+
+.aw-cardio-steppers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ADD WORKOUT — EXERCISE MANAGEMENT
+══════════════════════════════════════════════════════════ */
+.ex-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid var(--border-3);
+  background: var(--red-bg);
+  color: var(--red);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.ex-remove-btn:hover { opacity: 1; }
+
+.add-ex-to-session-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0 4px;
+  border-radius: 12px;
+  border: 1.5px dashed var(--border-3);
+  background: transparent;
+  color: var(--text-3);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.add-ex-to-session-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-bg);
+}
+
+/* Add exercise modal */
+.add-ex-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.add-ex-panel {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -8px 40px var(--shadow);
+}
+
+.add-ex-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.add-ex-panel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.add-ex-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.add-ex-tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.add-ex-tabs::-webkit-scrollbar { display: none; }
+
+.add-ex-tab {
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.add-ex-tab.active {
+  background: var(--surface-2);
+  color: var(--text-1);
+  border-color: var(--border-2);
+  font-weight: 600;
+}
+
+.add-ex-list {
+  overflow-y: auto;
+  padding: 8px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+}
+
+.add-ex-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-1);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+}
+.add-ex-item:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--border-3);
+}
+.add-ex-item--added {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.add-ex-item-name { flex: 1; }
+
+.add-ex-item-plus {
+  font-size: 1.1rem;
+  color: var(--green);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.add-ex-item-check {
+  font-size: 0.85rem;
+  color: var(--text-3);
+}
+
+.add-ex-custom-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 12px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.add-ex-custom-input {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-3);
+  background: var(--surface-2);
+  color: var(--text-1);
+  font-size: 0.875rem;
+}
+.add-ex-custom-input::placeholder { color: var(--text-4); }
+.add-ex-custom-input:focus { outline: none; border-color: var(--green); }
+
+.add-ex-custom-btn {
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: none;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.add-ex-custom-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (min-width: 769px) {
+  .add-ex-overlay {
+    align-items: center;
+  }
+  .add-ex-panel {
+    border-radius: 20px;
+    max-height: 70vh;
+    max-width: 480px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   DESKTOP — WORKOUT FORM & DAY DETAIL
+══════════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+  /* Constrain AddWorkout form width and center it */
+  .aw-form-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* DayDetail page max-width */
+  .dd-page {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* 2-column grid for exercise cards on desktop */
+  .aw-ex-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .dd-ex-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  /* Larger inputs on desktop */
+  .dd-input       { width: 80px;  font-size: 0.95rem; padding: 7px 10px; }
+  .dd-input--wide { width: 110px; font-size: 0.95rem; }
+
+  /* Set row padding on desktop */
+  .dd-set-row { padding: 11px 20px; }
+  .aw-set-grid-row { grid-template-columns: 80px 1fr 40px; padding: 10px 16px 10px 16px; }
+
+  /* Exercise card header padding */
+  .dd-ex-card-top { padding: 16px 20px; }
+
+  /* Larger icon */
+  .dd-ex-icon-wrap { width: 42px; height: 42px; }
+
+  /* Exercise name size */
+  .dd-ex-name { font-size: 0.98rem; }
+
+  /* Add set / repeat buttons */
+  .dd-add-set-btn  { padding: 10px 20px; font-size: 0.8rem; }
+  .dd-repeat-btn   { font-size: 0.85rem; padding: 11px 22px; }
 }

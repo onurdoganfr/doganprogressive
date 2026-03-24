@@ -5,7 +5,7 @@ export default function LastSessionCard({ session }) {
   const name     = getDisplayName(session);
   const tagClass = getTagClass(session);
   const exercises = Object.entries(session.data)
-    .filter(([, ex]) => ex.sets?.some(s => s.weight !== '' && s.weight != null));
+    .filter(([n, ex]) => n !== '__order' && ex.sets?.some(s => s.weight !== '' && s.weight != null));
 
   return (
     <div className="last-session-card">

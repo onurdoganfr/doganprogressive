@@ -14,9 +14,11 @@ export default function HistoryList({ history, onSelect, onDelete }) {
         : <div className="hist-table">
             {sorted.map(day => {
               const logged = Object.entries(day.data).filter(([n, ex]) =>
-                isTreadmill(n) ? ex.speed !== '' || ex.incline !== '' || ex.duration !== ''
-                : isJumpRope(n) ? ex.jumps !== ''
-                : ex.sets?.some(s => s.weight !== '' || s.reps !== '')
+                n !== '__order' && (
+                  isTreadmill(n) ? ex.speed !== '' || ex.incline !== '' || ex.duration !== ''
+                  : isJumpRope(n) ? ex.jumps !== ''
+                  : ex.sets?.some(s => s.weight !== '' || s.reps !== '')
+                )
               ).length;
               return (
                 <div key={day.id} className="hist-row" onClick={() => onSelect(day)}>

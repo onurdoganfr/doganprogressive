@@ -34,6 +34,7 @@ export default function Records({ history }) {
   history.forEach(entry => {
     if (!entry.data || entry.type === 'offday') return;
     Object.entries(entry.data).forEach(([ex, val]) => {
+      if (ex === '__order') return;
       if (!val?.sets?.length) return;
       val.sets.forEach(s => {
         const w = parseFloat(s.weight);
@@ -68,8 +69,10 @@ export default function Records({ history }) {
 
   return (
     <>
-      <div className="page-title">Personal Records</div>
-      <div className="page-sub">Your best performance per exercise</div>
+      <div className="page-header">
+        <div className="page-title">Personal Records</div>
+        <div className="page-sub">Your best performance per exercise</div>
+      </div>
 
       {totalPRs === 0 ? (
         <div className="empty-state">
@@ -93,11 +96,13 @@ export default function Records({ history }) {
                     <div className="records-ex-date">{formatShortDate(ex.date)}</div>
                   </div>
                   <div className="records-row-right">
-                    <div className="records-weight">{ex.maxWeight} <span>kg</span></div>
-                    {ex.reps > 0 && <div className="records-reps">× {ex.reps} reps</div>}
-                    {ex.reps > 1 && estimate1RM(ex.maxWeight, ex.reps) && (
-                      <div className="records-1rm">~{estimate1RM(ex.maxWeight, ex.reps)} kg 1RM</div>
-                    )}
+                    <div className="records-row-right-stats">
+                      <div className="records-weight">{ex.maxWeight} <span>kg</span></div>
+                      {ex.reps > 0 && <div className="records-reps">× {ex.reps} reps</div>}
+                      {ex.reps > 1 && estimate1RM(ex.maxWeight, ex.reps) && (
+                        <div className="records-1rm">~{estimate1RM(ex.maxWeight, ex.reps)} kg 1RM</div>
+                      )}
+                    </div>
                     <svg className="records-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <polyline points="9 18 15 12 9 6"/>
                     </svg>

@@ -14,10 +14,20 @@ export function makeEmptyData(exercises) {
   return d;
 }
 
+// Returns [[exerciseName, value], ...] in the stored order, skipping the __order key
+export function getOrderedExercises(data) {
+  const order = Array.isArray(data.__order) ? data.__order : null;
+  const entries = Object.entries(data).filter(([k]) => k !== '__order');
+  if (!order) return entries;
+  const map = Object.fromEntries(entries);
+  return order.filter(k => map[k] !== undefined).map(k => [k, map[k]]);
+}
+
 // Migrate old { w1, w2 } format to { sets: [...] }
 export function migrateEntry(entry) {
   const newData = {};
   for (const [ex, val] of Object.entries(entry.data)) {
+    if (ex === '__order') { newData.__order = val; continue; }
     if (val.w1 !== undefined) {
       newData[ex] = { sets: [val.w1, val.w2].filter(Boolean) };
     } else {

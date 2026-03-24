@@ -1,5 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase.js';
+
+const KVKK_TEXT = `PRIVACY POLICY & DATA PROTECTION NOTICE
+
+Last updated: March 2026
+
+1. DATA CONTROLLER
+Your personal data processed within the DOGAN Progressive Overload application ("App") is handled by the application owner, Onur Doğan.
+
+2. PERSONAL DATA COLLECTED
+The following data is collected through the App:
+• Account information: Name, email address
+• Workout data: Exercise history, program details, set/rep/weight records
+• Body measurement data: Weight, body measurements
+
+3. PURPOSE OF DATA PROCESSING
+Collected data is used solely for the following purposes:
+• Providing the core functionality of the App
+• Managing your user account
+• Tracking workout history and progress
+Your data is never shared with third parties or used for advertising purposes.
+
+4. DATA STORAGE
+Your data is securely stored on Supabase (supabase.com) infrastructure. Supabase uses industry-standard encryption methods to protect your data.
+
+5. DATA RETENTION
+Your data is retained for as long as your account is active. When you delete your account, all your data is permanently and irreversibly deleted.
+
+6. YOUR RIGHTS
+You have the following rights regarding your personal data:
+• Right to access your data
+• Right to request correction of your data
+• Right to request deletion of your data (Profile → Delete Account)
+• Right to object to data processing
+
+7. CONTACT
+For any requests or questions regarding your personal data, you may use the account deletion feature on the Profile page or contact the application owner directly.
+
+8. LIMITATION OF LIABILITY
+The App is provided "as is". The application owner cannot be held liable for technical failures, data losses, or issues arising from third-party service providers (Supabase, Netlify).`;
 
 function getInitials(user) {
   const name = user?.user_metadata?.full_name || user?.email || '';
@@ -16,18 +55,25 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
   const [newPw,       setNewPw]      = useState('');
   const [confirmPw,   setConfirmPw]  = useState('');
   const [deleteInput, setDeleteInput] = useState('');
-  const [session,     setSession]    = useState(null);
 
-  const [nameMsg, setNameMsg] = useState(null); // { ok, text }
-  const [pwMsg,   setPwMsg]   = useState(null);
-  const [deleting,  setDeleting]  = useState(false);
+  const [nameMsg,    setNameMsg]    = useState(null);
+  const [pwMsg,      setPwMsg]      = useState(null);
+  const [deleting,   setDeleting]   = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [showKvkk,   setShowKvkk]  = useState(false);
+
+  const [calcWeight, setCalcWeight] = useState('');
+  const [calcReps,   setCalcReps]   = useState('');
+
+  const result1RM = useMemo(() => {
+    const w = parseFloat(calcWeight);
+    const r = parseInt(calcReps);
+    if (!w || !r || r <= 0 || w <= 0) return null;
+    if (r === 1) return w;
+    return Math.round(w * (1 + r / 30) * 2) / 2;
+  }, [calcWeight, calcReps]);
 
   const initials = getInitials(user);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-  }, []);
 
   function flash(setter, ok, text) {
     setter({ ok, text });
@@ -40,7 +86,6 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
     if (error) flash(setNameMsg, false, error.message);
     else { flash(setNameMsg, true, 'Name updated.'); onUserUpdate?.(); }
   }
-
 
   async function savePassword(e) {
     e.preventDefault();
@@ -59,53 +104,41 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
   async function deleteAccount() {
     if (deleteInput !== user?.email) return;
     setDeleting(true);
-    try {
-      await supabase.rpc('delete_user_account');
-    } catch (_) {}
+    try { await supabase.rpc('delete_user_account'); } catch (_) {}
     onSignOut();
   }
 
   return (
     <div className="profile-page">
-      {/* Header */}
-      <div className="page-title">Profile</div>
-      <div className="page-sub">Manage your account</div>
 
-      {/* User card — horizontal like settings-card */}
-      <div className="profile-user-card">
+      {/* ── User hero card ─────────────────────────────────────── */}
+      <div className="profile-hero">
         <div className="profile-avatar">{initials}</div>
-        <div className="profile-user-info">
-          <div className="profile-avatar-name">{user?.user_metadata?.full_name || user?.email}</div>
+        <div className="profile-hero-info">
+          <div className="profile-avatar-name">{user?.user_metadata?.full_name || user?.email?.split('@')[0]}</div>
           <div className="profile-avatar-email">{user?.email}</div>
         </div>
       </div>
 
-      {/* ── Name ──────────────────────────────────────────────── */}
+      {/* ── Account ───────────────────────────────────────────── */}
       <div className="profile-section">
-        <div className="profile-section-title">Display Name</div>
+        <div className="profile-section-title">Account</div>
+
         <form className="profile-form" onSubmit={saveName}>
           <input
             className="profile-input"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Your name"
+            placeholder="Display name"
             required
           />
           <button className="profile-save-btn" type="submit">Save</button>
         </form>
         {nameMsg && <div className={`profile-msg ${nameMsg.ok ? 'ok' : 'err'}`}>{nameMsg.text}</div>}
-      </div>
 
-      {/* ── Email ─────────────────────────────────────────────── */}
-      <div className="profile-section">
-        <div className="profile-section-title">Email Address</div>
-        <div className="profile-email-display">{user?.email}</div>
-      </div>
+        <div className="profile-divider" />
 
-      {/* ── Password ──────────────────────────────────────────── */}
-      <div className="profile-section">
-        <div className="profile-section-title">Change Password</div>
         <form className="profile-form-col" onSubmit={savePassword}>
           <input
             className="profile-input"
@@ -147,26 +180,60 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
           </div>
         </div>
         <div className="session-btn-row">
-          <button className="profile-session-btn" onClick={onSignOut}>
-            Sign out this device
-          </button>
-          <button className="profile-session-btn outline" onClick={signOutAll}>
-            Sign out all devices
-          </button>
+          <button className="profile-session-btn" onClick={onSignOut}>Sign out this device</button>
+          <button className="profile-session-btn outline" onClick={signOutAll}>Sign out all devices</button>
         </div>
       </div>
 
-      {/* ── Delete Account ────────────────────────────────────── */}
+      {/* ── 1RM Calculator ────────────────────────────────────── */}
       <div className="profile-section">
-        <div className="profile-section-title">Account</div>
+        <div className="profile-section-title">1RM Calculator</div>
+        <div className="calc-1rm-row">
+          <input
+            className="calc-1rm-input"
+            type="number" min="0" step="0.5"
+            placeholder="Weight (kg)"
+            value={calcWeight}
+            onChange={e => setCalcWeight(e.target.value)}
+          />
+          <input
+            className="calc-1rm-input"
+            type="number" min="1" max="30"
+            placeholder="Reps"
+            value={calcReps}
+            onChange={e => setCalcReps(e.target.value)}
+          />
+          {result1RM && (
+            <div className="calc-1rm-result">
+              <span className="calc-1rm-label">Est. 1RM</span>
+              <span className="calc-1rm-value">{result1RM} <small>kg</small></span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Footer actions ────────────────────────────────────── */}
+      <div className="profile-footer-actions">
+        <button className="profile-footer-btn" onClick={() => setShowKvkk(true)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Privacy Policy
+        </button>
         {!showDelete ? (
-          <button className="profile-delete-link" onClick={() => setShowDelete(true)}>
-            Delete my account
+          <button className="profile-footer-btn profile-footer-btn--danger" onClick={() => setShowDelete(true)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+            </svg>
+            Delete Account
           </button>
         ) : (
           <div className="delete-confirm-box">
             <p className="delete-confirm-text">
-              This will permanently delete your account and all data. Type your email to confirm:
+              Permanently deletes your account and all data. Type your email to confirm:
             </p>
             <input
               className="profile-input"
@@ -190,6 +257,19 @@ export default function Profile({ user, onBack, onSignOut, onUserUpdate }) {
           </div>
         )}
       </div>
+
+      {/* ── Privacy Modal ─────────────────────────────────────── */}
+      {showKvkk && (
+        <div className="kvkk-overlay" onClick={() => setShowKvkk(false)}>
+          <div className="kvkk-modal" onClick={e => e.stopPropagation()}>
+            <div className="kvkk-modal-header">
+              <div className="kvkk-modal-title">Privacy Policy</div>
+              <button className="chart-modal-close" onClick={() => setShowKvkk(false)}>✕</button>
+            </div>
+            <pre className="kvkk-text">{KVKK_TEXT}</pre>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
