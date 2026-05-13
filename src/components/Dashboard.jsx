@@ -1,14 +1,49 @@
 import { useState } from 'react';
 import { isSameDay } from '../utils/date.js';
-import { getLatestForExercise } from '../utils/workout.js';
-import DayStrip from './DayStrip.jsx';
-import LastSessionCard from './LastSessionCard.jsx';
+import { getLatestForExercise, getOrderedExercises, getDisplayName } from '../utils/workout.js';
+import { EX_GROUP_MAP, GROUP_ORDER } from '../data/exerciseLibrary.js';
 import ExerciseChart from './ExerciseChart.jsx';
 
-export default function Dashboard({ history, programs, theme, onToggleTheme }) {
-  const [chartEx, setChartEx] = useState(null);
+function getISOWeek(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function getGreeting(hour) {
+  if (hour >= 5 && hour < 12) return 'Good morning';
+  if (hour >= 12 && hour < 17) return 'Good afternoon';
+  if (hour >= 17 && hour < 22) return 'Good evening';
+  return 'Welcome back';
+}
+
+export default function Dashboard({ history, programs, theme, onToggleTheme, user, onAdd }) {
+  const [chartEx,    setChartEx]    = useState(null);
+  const [openGroups, setOpenGroups] = useState(() => new Set(GROUP_ORDER.concat(['Other'])));
+
+  function toggleGroup(g) {
+    setOpenGroups(prev => {
+      const next = new Set(prev);
+      next.has(g) ? next.delete(g) : next.add(g);
+      return next;
+    });
+  }
+
   const last  = history.length > 0 ? history[history.length - 1] : null;
   const today = new Date(); today.setHours(0, 0, 0, 0);
+  const now   = new Date();
+
+  // Greeting
+  const rawName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
+  const firstName = rawName.split(' ')[0];
+  const greeting  = getGreeting(now.getHours());
+
+  // Eyebrow
+  const weekNum = getISOWeek(today);
+  const eyebrow = today.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()
+    + ' · ' + today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
 
   const workoutDays = new Set(history.map(h => {
     const d = new Date(h.date); d.setHours(0,0,0,0); return d.getTime();
@@ -37,7 +72,7 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
     if (tmp > longestStreak) longestStreak = tmp;
   });
 
-  // Weekly volume (last 7 days)
+  // Weekly rhythm (last 7 days)
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(today); d.setDate(today.getDate() - 6 + i); return d;
   });
@@ -66,7 +101,11 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
   history.forEach(d => Object.keys(d.data).forEach(e => { if (e !== '__order') allLogged.add(e); }));
   const bests = [...allLogged]
     .map(ex => ({ ex, latest: getLatestForExercise(history, ex) }))
-    .filter(({ latest }) => latest?.weight);
+    .filter(({ latest }) => latest?.weight)
+    .sort((a, b) => parseFloat(b.latest.weight) - parseFloat(a.latest.weight));
+
+  // Top 4 PR cards
+  const topPRs = bests.slice(0, 4);
 
   // Heatmap: last 12 weeks = 84 days
   const heatDays = Array.from({ length: 84 }, (_, i) => {
@@ -77,13 +116,38 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
 
   return (
     <>
-      <div className="page-header">
-        <div className="page-header-row">
-          <div>
-            <div className="page-title">Dashboard</div>
-            <div className="page-sub">Your training overview</div>
+      {/* Hero */}
+      <div className="dash-hero">
+        <div className="dash-hero-left">
+          <div className="dash-eyebrow">{eyebrow}</div>
+          <h1 className="dash-greeting">
+            {greeting}{firstName ? `, ${firstName}` : ''}.
+          </h1>
+          <div className="dash-sub">
+            {last ? (
+              <>
+                Last session{' '}
+                <span className="dash-sub-num">
+                  {Math.round((today - new Date(last.date).setHours(0,0,0,0)) / 86400000) === 0
+                    ? 'today'
+                    : Math.round((today - new Date(last.date).setHours(0,0,0,0)) / 86400000) === 1
+                    ? 'yesterday'
+                    : `${Math.round((today - new Date(last.date).setHours(0,0,0,0)) / 86400000)}d ago`}
+                </span>
+                {' · '}
+                <span className="dash-sub-num">{totalWorkouts}</span> sessions total
+              </>
+            ) : (
+              'No workouts logged yet — let\'s get started.'
+            )}
           </div>
-          <button className="page-theme-btn" onClick={onToggleTheme} title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+        </div>
+        <div className="dash-hero-right">
+          <button
+            className="page-theme-btn"
+            onClick={onToggleTheme}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
             {theme === 'dark' ? (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="18" height="18">
                 <circle cx="12" cy="12" r="5"/>
@@ -98,25 +162,36 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
               </svg>
             )}
           </button>
+          {onAdd && (
+            <button className="dash-cta-btn" onClick={onAdd}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Log Session
+            </button>
+          )}
         </div>
       </div>
 
       {/* Stats Row */}
       <div className="stats-row">
-        {[
-          { label: 'Total Workouts', value: totalWorkouts },
-          { label: 'This Week',      value: thisWeek },
-          { label: 'Current Streak', value: `${currentStreak}d` },
-          { label: 'Longest Streak', value: `${longestStreak}d` },
-        ].map(s => (
-          <div key={s.label} className="stat-card">
-            <div className="stat-val">{s.value}</div>
-            <div className="stat-label">{s.label}</div>
-          </div>
-        ))}
+        <div className="stat-card">
+          <div className="stat-val">{totalWorkouts}</div>
+          <div className="stat-label">Total Sessions</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-val">{thisWeek}</div>
+          <div className="stat-label">This Week</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-val">{currentStreak}<span className="stat-val-suffix">d</span></div>
+          <div className="stat-label">Current Streak</div>
+        </div>
+        <div className="stat-card stat-card--accent">
+          <div className="stat-val stat-val--accent">{longestStreak}<span className="stat-val-suffix stat-val-suffix--accent">d</span></div>
+          <div className="stat-label stat-label--accent">Best Streak</div>
+        </div>
       </div>
-
-      <DayStrip history={history} />
 
       {!last ? (
         <div className="empty-state">
@@ -125,71 +200,186 @@ export default function Dashboard({ history, programs, theme, onToggleTheme }) {
         </div>
       ) : (
         <>
-          {/* Weekly Volume + Most Trained */}
-          <div className="dash-two-col">
-            <div className="dash-card">
-              <div className="section-head" style={{ marginTop: 0 }}>Weekly Volume</div>
-              <div className="vol-chart">
-                {weekVol.map(({ d, count }) => {
-                  const isToday = isSameDay(d, today);
-                  const pct = count === 0 ? 4 : Math.max(10, (count / maxVol) * 100);
-                  return (
-                    <div key={d.getTime()} className="vol-bar-wrap">
-                      <div className="vol-num">{count > 0 ? count : ''}</div>
-                      <div className="vol-bar-track">
-                        <div className={`vol-bar${count > 0 ? ' has-data' : ''}${isToday ? ' is-today' : ''}`}
-                          style={{ height: `${pct}%` }} />
+          {/* Body grid: Rhythm + Leaderboard */}
+          <div className="dash-body-grid">
+            {/* Left col */}
+            <div className="dash-left-col">
+              {/* Weekly Rhythm */}
+              <div className="dash-card">
+                <div className="dash-card-header">
+                  <div>
+                    <div className="dash-card-eyebrow">Last 7 Days</div>
+                    <div className="dash-card-title">Weekly Rhythm</div>
+                  </div>
+                  <div className="dash-card-pill">{thisWeek} sessions</div>
+                </div>
+                <div className="rhythm-chart">
+                  {weekVol.map(({ d, count }) => {
+                    const isToday = isSameDay(d, today);
+                    const pct = count === 0 ? 4 : Math.max(8, (count / maxVol) * 100);
+                    return (
+                      <div key={d.getTime()} className="rhythm-bar-col">
+                        <div className="rhythm-num">{count > 0 ? count : ''}</div>
+                        <div className="rhythm-bar-track">
+                          <div
+                            className={`rhythm-bar${count > 0 ? ' has-data' : ''}${isToday ? ' is-today' : ''}`}
+                            style={{ height: `${pct}%` }}
+                          />
+                        </div>
+                        <div className={`rhythm-day${isToday ? ' is-today' : ''}`}>
+                          {d.toLocaleDateString('en-US', { weekday: 'narrow' })}
+                        </div>
                       </div>
-                      <div className={`vol-day${isToday ? ' is-today' : ''}`}>
-                        {d.toLocaleDateString('en-US', { weekday: 'narrow' })}
-                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Last Session */}
+              <div className="dash-card">
+                <div className="dash-card-header">
+                  <div>
+                    <div className="dash-card-eyebrow">
+                      {new Date(last.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                     </div>
-                  );
-                })}
+                    <div className="dash-card-title">{getDisplayName(last)}</div>
+                  </div>
+                  {last.tag_class && (
+                    <span className={`session-tag ${last.tag_class}`}>{last.type || last.program_name}</span>
+                  )}
+                </div>
+                <div className="last-sess-ex-grid">
+                  {getOrderedExercises(last.data).slice(0, 6).map(([name, ex]) => {
+                    const validSets = ex.sets?.filter(s => s.reps !== '' && s.reps != null) || [];
+                    const bestWeighted = validSets
+                      .filter(s => parseFloat(s.weight) > 0)
+                      .reduce((best, s) => parseFloat(s.weight) > parseFloat(best?.weight || 0) ? s : best, null);
+                    const maxReps = validSets.length > 0
+                      ? Math.max(...validSets.map(s => parseInt(s.reps) || 0))
+                      : 0;
+                    const val = !ex.sets
+                      ? (ex.speed ? `${ex.speed}km/h` : ex.jumps ? `${ex.jumps} jumps` : '—')
+                      : bestWeighted
+                      ? `${bestWeighted.weight}kg × ${bestWeighted.reps}`
+                      : validSets.length > 0
+                      ? `${validSets.length} × ${maxReps} reps`
+                      : '—';
+                    return (
+                      <div key={name} className="last-sess-ex-item" onClick={() => setChartEx(name)}>
+                        <div className="last-sess-ex-name">{name}</div>
+                        <div className="last-sess-ex-val">{val}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {getOrderedExercises(last.data).length > 6 && (
+                  <div className="dash-empty-hint">+{getOrderedExercises(last.data).length - 6} more exercises</div>
+                )}
               </div>
             </div>
 
-            <div className="dash-card">
-              <div className="section-head" style={{ marginTop: 0 }}>Most Trained</div>
-              {topEx.length === 0
-                ? <div style={{ color: '#2a2a2a', fontSize: '0.78rem' }}>No data yet</div>
-                : topEx.map(([name, count], i) => (
-                  <div key={name} className="most-row">
-                    <span className="most-rank">#{i + 1}</span>
-                    <span className="most-name">{name}</span>
-                    <div className="most-bar-wrap">
-                      <div className="most-bar" style={{ width: `${(count / maxCount) * 100}%` }} />
+            {/* Right col — Leaderboard */}
+            <div className="dash-leaderboard">
+              <div className="dash-card-header" style={{ marginBottom: '16px' }}>
+                <div>
+                  <div className="dash-card-eyebrow">All Time</div>
+                  <div className="dash-card-title">Most Trained</div>
+                </div>
+              </div>
+              {topEx.length === 0 ? (
+                <div className="dash-empty-hint">No data yet</div>
+              ) : (
+                <div className="leaderboard-list">
+                  {topEx.map(([name, count], i) => (
+                    <div key={name} className="leaderboard-row">
+                      <div className="leaderboard-rank">#{i + 1}</div>
+                      <div className="leaderboard-body">
+                        <div className="leaderboard-name-row">
+                          <span className="leaderboard-name">{name}</span>
+                          <span className="leaderboard-count">{count}×</span>
+                        </div>
+                        <div className="leaderboard-bar-track">
+                          <div className="leaderboard-bar" style={{ width: `${(count / maxCount) * 100}%` }} />
+                        </div>
+                      </div>
                     </div>
-                    <span className="most-count">{count}x</span>
-                  </div>
-                ))
-              }
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Last Session */}
-          <div className="section-head">Last Session</div>
-          <LastSessionCard session={last} />
-
-          {/* Personal Bests */}
-          {bests.length > 0 && (
+          {/* PR Cards */}
+          {topPRs.length > 0 && (
             <>
-              <div className="section-head">Personal Bests</div>
-              <div className="bests-grid">
-                {bests.map(({ ex, latest }) => (
-                  <div key={ex} className="best-card best-card-clickable" onClick={() => setChartEx(ex)}>
-                    <div className="best-name">{ex}</div>
-                    <div className="best-val">{latest.weight} kg{latest.reps ? ` × ${latest.reps}` : ''}</div>
-                    <div className="best-target">↑ Target: {parseFloat(latest.weight) + 5} kg</div>
-                    <div className="best-chart-hint">📈 View progress</div>
+              <div className="dash-section-header">
+                <span className="dash-section-title">Top Records</span>
+              </div>
+              <div className="pr-cards-row">
+                {topPRs.map(({ ex, latest }) => (
+                  <div key={ex} className="pr-card" onClick={() => setChartEx(ex)}>
+                    <div className="pr-card-eyebrow">Personal Best</div>
+                    <div className="pr-card-name">{ex}</div>
+                    <div className="pr-card-weight">
+                      {latest.weight}
+                      <span className="pr-card-unit">kg</span>
+                    </div>
+                    {latest.reps && (
+                      <div className="pr-card-target">× {latest.reps} reps</div>
+                    )}
                   </div>
                 ))}
               </div>
             </>
           )}
 
+          {/* Personal Bests — grouped by muscle */}
+          {bests.length > 0 && (() => {
+            const grouped = {};
+            bests.forEach(b => {
+              const g = EX_GROUP_MAP[b.ex] || 'Other';
+              (grouped[g] = grouped[g] || []).push(b);
+            });
+            const orderedGroups = [
+              ...GROUP_ORDER.filter(g => grouped[g]),
+              ...Object.keys(grouped).filter(g => !GROUP_ORDER.includes(g)),
+            ];
+            return (
+              <>
+                <div className="dash-section-header">
+                  <span className="dash-section-title">Personal Bests</span>
+                </div>
+                {orderedGroups.map(group => (
+                  <div key={group} className="pb-group">
+                    <button className="pb-group-header" onClick={() => toggleGroup(group)}>
+                      <span className="pb-group-label">{group}</span>
+                      <span className="pb-group-count">{grouped[group].length}</span>
+                      <svg className={`pb-group-chevron${openGroups.has(group) ? ' open' : ''}`}
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
+                        <polyline points="6 9 12 15 18 9"/>
+                      </svg>
+                    </button>
+                    {openGroups.has(group) && (
+                      <div className="bests-grid pb-group-grid">
+                        {grouped[group].map(({ ex, latest }) => (
+                          <div key={ex} className="best-card best-card-clickable" onClick={() => setChartEx(ex)}>
+                            <div className="best-name">{ex}</div>
+                            <div className="best-val">{latest.weight} kg{latest.reps ? ` × ${latest.reps}` : ''}</div>
+                            <div className="best-target">↑ Target: {parseFloat(latest.weight) + 5} kg</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </>
+            );
+          })()}
+
           {/* Heatmap */}
-          <div className="section-head">Training Heatmap</div>
+          <div className="dash-section-header">
+            <span className="dash-section-title">Training Heatmap</span>
+          </div>
           <div className="heatmap-outer">
             <div className="heatmap-grid">
               {heatDays.map(d => {

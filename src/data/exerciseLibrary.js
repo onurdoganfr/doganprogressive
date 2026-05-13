@@ -28,3 +28,15 @@ export function libAllExercises(cat) {
   const val = EXERCISE_LIBRARY[cat];
   return Array.isArray(val) ? val : Object.values(val).flat();
 }
+
+export const GROUP_ORDER = ['Chest', 'Shoulders', 'Back', 'Arms', 'Legs', 'Core', 'Cardio'];
+
+// Flat reverse map: exercise name → top-level group
+export const EX_GROUP_MAP = (() => {
+  const m = {};
+  for (const [group, sub] of Object.entries(EXERCISE_LIBRARY)) {
+    const list = Array.isArray(sub) ? sub : Object.values(sub).flat();
+    list.forEach(ex => { m[ex] = group; });
+  }
+  return m;
+})();

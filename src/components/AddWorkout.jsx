@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import ExercisePicker from './ExercisePicker.jsx';
 import RestTimer from './RestTimer.jsx';
-import { isTreadmill, isJumpRope, makeEmptyData, getPrevForExercise, checkPR } from '../utils/workout.js';
+import { isTreadmill, isJumpRope, makeEmptyData, getPrevForExercise, checkPR, getAllTimeBestSet } from '../utils/workout.js';
 import { EXERCISE_LIBRARY, libAllExercises } from '../data/exerciseLibrary.js';
+import { getShareUrl } from '../utils/share.js';
 
 function DumbbellIcon() {
   return (
@@ -73,6 +74,33 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
   const displayedPrograms = sortByOrder(programs, programOrder);
   displayRef.current = displayedPrograms;
 
+  const [copiedId,        setCopiedId]        = useState(null);
+  const [rearrangeMode,   setRearrangeMode]   = useState(false);
+  const [confirmRemoveEx, setConfirmRemoveEx] = useState(null);
+  const [exDragIdx,       setExDragIdx]       = useState(null);
+  const [exOverIdx,       setExOverIdx]       = useState(null);
+  const exDragRef    = useRef({ active: false, fromIdx: null });
+  const exOverIdxRef = useRef(null);
+
+  async function handleShareProgram(e, prog) {
+    e.stopPropagation();
+    const url = getShareUrl(prog);
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopiedId(prog.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  }
+
   // ── Drag handlers ───────────────────────────────────────────
   function handleDragHandleDown(e, idx) {
     e.preventDefault();
@@ -110,6 +138,54 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
       overIdxRef.current = null;
       setDragIdx(null);
       setOverIdx(null);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mouseup',   onEnd);
+      document.removeEventListener('touchend',  onEnd);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup',   onEnd);
+    document.addEventListener('touchend',  onEnd);
+  }
+
+  function handleExDragHandleDown(e, idx) {
+    e.preventDefault();
+    e.stopPropagation();
+    exDragRef.current = { active: true, fromIdx: idx };
+    exOverIdxRef.current = idx;
+    setExDragIdx(idx);
+
+    function onMove(ev) {
+      if (!exDragRef.current.active) return;
+      if (ev.cancelable) ev.preventDefault();
+      const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      document.querySelectorAll('[data-ex-idx]').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        if (clientY >= rect.top && clientY <= rect.bottom) {
+          const i = parseInt(card.getAttribute('data-ex-idx'));
+          setExOverIdx(i);
+          exOverIdxRef.current = i;
+        }
+      });
+    }
+
+    function onEnd() {
+      const from = exDragRef.current.fromIdx;
+      const to   = exOverIdxRef.current;
+      if (from !== null && to !== null && from !== to) {
+        setSessionExercises(prev => {
+          const arr = [...prev];
+          const [item] = arr.splice(from, 1);
+          arr.splice(to, 0, item);
+          return arr;
+        });
+      }
+      exDragRef.current = { active: false, fromIdx: null };
+      exOverIdxRef.current = null;
+      setExDragIdx(null);
+      setExOverIdx(null);
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('mouseup',   onEnd);
@@ -261,6 +337,20 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
               >⠿</button>
               <button className="prog-edit" title="Edit program"
                 onClick={e => { e.stopPropagation(); setEditProg(prog); setStep('edit'); }}>✎</button>
+              <button
+                className={`prog-share${copiedId === prog.id ? ' copied' : ''}`}
+                title={copiedId === prog.id ? 'Link copied!' : 'Share program'}
+                onClick={e => handleShareProgram(e, prog)}
+              >
+                {copiedId === prog.id ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="11" height="11"><polyline points="20 6 9 17 4 12"/></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                  </svg>
+                )}
+              </button>
               <button className="prog-delete" title="Delete program"
                 onClick={e => { e.stopPropagation(); onDeleteProgram(prog.id); }}>×</button>
             </div>
@@ -304,6 +394,17 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
               <span className="fill-all-label">Fill Last Session</span>
             </button>
           )}
+          <button
+            className={`timer-toggle-btn${rearrangeMode ? ' active' : ''}`}
+            onClick={() => setRearrangeMode(m => !m)}
+            title="Reorder exercises"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              <line x1="17" y1="3" x2="21" y2="6" strokeWidth="0"/><line x1="17" y1="21" x2="21" y2="18" strokeWidth="0"/>
+            </svg>
+            <span className="fill-all-label">{rearrangeMode ? 'Done' : 'Reorder'}</span>
+          </button>
           <input type="date" className="date-picker" value={workoutDate} onChange={e => setWorkoutDate(e.target.value)} />
           <button className={`timer-toggle-btn${showTimer ? ' active' : ''}`} onClick={() => setShowTimer(t => !t)} title="Rest Timer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16">
@@ -315,39 +416,60 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
       </div>
 
       <div className="aw-ex-list">
-        {exList.map(exercise => {
+        {exList.map((exercise, exIndex) => {
           const isTM = isTreadmill(exercise);
           const isJR = isJumpRope(exercise);
-          const setCount = data[exercise]?.sets?.length || 0;
+          const setCount    = data[exercise]?.sets?.length || 0;
+          const allTimeBest = (!isTM && !isJR) ? getAllTimeBestSet(history, exercise) : null;
           return (
-            <div key={exercise} className="dd-ex-card">
+            <div
+              key={exercise}
+              className={`dd-ex-card${rearrangeMode ? ' dd-ex-card--reorder' : ''}${exDragIdx === exIndex ? ' ex-dragging' : ''}${exOverIdx === exIndex && exDragIdx !== exIndex ? ' ex-drag-over' : ''}`}
+              data-ex-idx={exIndex}
+            >
               {/* Card header */}
               <div className="dd-ex-card-top">
+                {rearrangeMode && (
+                  <button className="aw-ex-drag-handle"
+                    onMouseDown={e => handleExDragHandleDown(e, exIndex)}
+                    onTouchStart={e => handleExDragHandleDown(e, exIndex)}
+                    onClick={e => e.stopPropagation()}
+                  >⠿</button>
+                )}
                 <div className={`dd-ex-icon-wrap${isTM || isJR ? ' dd-ex-icon-wrap--cardio' : ''}`}>
                   {isTM || isJR ? <CardioIcon /> : <DumbbellIcon />}
                 </div>
                 <div className="dd-ex-info" style={{ flex: 1 }}>
                   <div className="dd-ex-name">{exercise}</div>
                   <div className="dd-ex-sub">
-                    {isTM || isJR ? 'Cardio' : `${setCount} set${setCount !== 1 ? 's' : ''}`}
+                    {isTM || isJR ? 'Cardio' : (
+                      <>
+                        {setCount} set{setCount !== 1 ? 's' : ''}
+                        {allTimeBest && (
+                          <span className="dd-ex-pr-ref"> · PR: {allTimeBest.weight}kg × {allTimeBest.reps}</span>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {!isTM && !isJR && hasPrevData(exercise) && (
-                    <button className="quick-fill-btn" onClick={() => quickFill(exercise)}>↓ Last</button>
-                  )}
-                  <button className="ex-remove-btn" onClick={() => removeExercise(exercise)} title="Remove">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                  </button>
-                </div>
+                {!rearrangeMode && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {!isTM && !isJR && hasPrevData(exercise) && (
+                      <button className="quick-fill-btn" onClick={() => quickFill(exercise)}>↓ Last</button>
+                    )}
+                    <button className="ex-remove-btn" onClick={() => setConfirmRemoveEx(exercise)} title="Remove">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <div className="dd-ex-divider"/>
+              {!rearrangeMode && <div className="dd-ex-divider"/>}
 
               {/* Treadmill */}
-              {isTM && [
+              {!rearrangeMode && isTM && [
                 { label: 'Speed',    field: 'speed',    unit: 'km/h' },
                 { label: 'Incline',  field: 'incline',  unit: '%'    },
                 { label: 'Duration', field: 'duration', unit: 'min'  },
@@ -368,7 +490,7 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
               ))}
 
               {/* Jump rope */}
-              {isJR && (
+              {!rearrangeMode && isJR && (
                 <div className="dd-set-row">
                   <span className="dd-set-label">Jumps</span>
                   <div className="dd-set-edit-row">
@@ -385,11 +507,11 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
               )}
 
               {/* Strength sets */}
-              {!isTM && !isJR && (
+              {!rearrangeMode && !isTM && !isJR && (
                 <>
                   {(data[exercise]?.sets || []).map((set, i) => {
                     const prevSet = getPrevForExercise(history, exercise, i);
-                    const pr      = checkPR(set, prevSet);
+                    const pr      = checkPR(set, allTimeBest);
                     const hasPrev = prevSet && (prevSet.weight !== '' || prevSet.reps !== '');
                     return (
                       <div key={i} className={`aw-set-grid-row${pr ? ' aw-set-row--pr' : ''}`}>
@@ -454,6 +576,19 @@ export default function AddWorkout({ history, programs, initialEntry, onSave, on
         })}>Save Workout</button>
         <button className="btn-ghost" onClick={onCancel}>Cancel</button>
       </div>
+
+      {confirmRemoveEx && (
+        <div className="remove-confirm-overlay" onClick={() => setConfirmRemoveEx(null)}>
+          <div className="remove-confirm-modal" onClick={e => e.stopPropagation()}>
+            <div className="remove-confirm-title">Remove exercise?</div>
+            <div className="remove-confirm-sub">{confirmRemoveEx} will be removed from this workout.</div>
+            <div className="remove-confirm-btns">
+              <button className="btn-ghost" onClick={() => setConfirmRemoveEx(null)}>Cancel</button>
+              <button className="remove-confirm-btn" onClick={() => { removeExercise(confirmRemoveEx); setConfirmRemoveEx(null); }}>Remove</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showTimer && <RestTimer key={timerKey} onClose={() => setShowTimer(false)} />}
 

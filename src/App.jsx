@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase.js';
 import { migrateEntry } from './utils/workout.js';
+import { decodeProgram } from './utils/share.js';
 import { DEFAULT_PROGRAMS } from './data/defaultPrograms.js';
 import Auth from './components/Auth.jsx';
 import Sidebar from './components/Sidebar.jsx';
@@ -13,6 +14,7 @@ import Profile from './components/Profile.jsx';
 import Records from './components/Records.jsx';
 import ExerciseChart from './components/ExerciseChart.jsx';
 import BottomNav from './components/BottomNav.jsx';
+import SharePreview from './components/SharePreview.jsx';
 
 // ── DB ↔ App converters ──────────────────────────────────────────────────────
 
@@ -65,6 +67,20 @@ function measurementToDb(m, userId) {
 
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('gymTheme') || 'dark');
+
+  // Share preview — parse URL once on mount
+  const [shareProgram, setShareProgram] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('share');
+    return raw ? decodeProgram(raw) : null;
+  });
+
+  function closeShare() {
+    setShareProgram(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('share');
+    window.history.replaceState({}, '', url);
+  }
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -190,8 +206,21 @@ export default function App() {
     setMeasurements(prev => prev.filter(m => m.id !== id));
   }
 
-  // ── Backup import (from JSON file) ─────────────────────────────────────────
+  async function handleImportSharedProgram(prog) {
+    const newProg = { ...prog, id: String(Date.now()) };
+    await savePrograms([...programs, newProg]);
+  }
+
   // ── Render ─────────────────────────────────────────────────────────────────
+  const shareOverlay = shareProgram && authReady ? (
+    <SharePreview
+      program={shareProgram}
+      user={user}
+      onImport={handleImportSharedProgram}
+      onClose={closeShare}
+    />
+  ) : null;
+
   if (!authReady || (user && dataLoading && history.length === 0 && programs.length === 0)) {
     return (
       <div className="app-loading">
@@ -201,8 +230,8 @@ export default function App() {
     );
   }
 
-  if (resetMode) return <Auth resetMode theme={theme} onToggleTheme={toggleTheme} />;
-  if (!user) return <Auth theme={theme} onToggleTheme={toggleTheme} />;
+  if (resetMode) return <><Auth resetMode theme={theme} onToggleTheme={toggleTheme} />{shareOverlay}</>;
+  if (!user) return <><Auth theme={theme} onToggleTheme={toggleTheme} />{shareOverlay}</>;
 
   return (
     <div className="app">
@@ -226,6 +255,7 @@ export default function App() {
       />
       <div className="mobile-brand">DOGAN<span>Progressive Overload</span></div>
       <main className="main">
+        <div key={showAdd ? 'add' : view} className="view-enter">
         {showAdd ? (
           <AddWorkout
             key={repeatEntry ? `repeat-${repeatEntry.id}` : 'new'}
@@ -239,7 +269,7 @@ export default function App() {
             onCancel={() => { setRepeatEntry(null); setShowAdd(false); setView('dashboard'); }}
           />
         ) : view === 'dashboard' ? (
-          <Dashboard history={history} programs={programs} theme={theme} onToggleTheme={toggleTheme} onExerciseClick={setChartEx} />
+          <Dashboard history={history} programs={programs} theme={theme} onToggleTheme={toggleTheme} onExerciseClick={setChartEx} user={user} onAdd={() => { setPrevView('dashboard'); setShowAdd(true); }} />
         ) : view === 'history' ? (
           <HistoryList history={history} onSelect={day => { setSelectedDay(day); setView('detail'); }} onDelete={handleDelete} />
         ) : view === 'detail' && selectedDay ? (
@@ -269,6 +299,7 @@ export default function App() {
             onUserUpdate={() => supabase.auth.refreshSession()}
           />
         ) : null}
+        </div>
       </main>
       {chartEx && (
         <ExerciseChart exercise={chartEx} history={history} onClose={() => setChartEx(null)} />
@@ -285,6 +316,7 @@ export default function App() {
         }}
         onProfile={() => { setShowAdd(false); setView('profile'); }}
       />
+      {shareOverlay}
     </div>
   );
 }
